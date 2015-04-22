@@ -6,8 +6,11 @@
 #define CONCUTP_COOK_H
 
 
-class Cook {
+#include "../Pizza/Pizza.h"
+#include "../Order/Order.h"
 
+class Cook {
+    Pizza cookOrder(Order order);
 };
 
 

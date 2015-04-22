@@ -3,3 +3,7 @@
 //
 
 #include "Cook.h"
+
+Pizza Cook::cookOrder(Order order) {
+    return Pizza();
+}
