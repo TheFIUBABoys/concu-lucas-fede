@@ -5,9 +5,13 @@
 #ifndef CONCUTP_ORDER_H
 #define CONCUTP_ORDER_H
 
+#include <vector>
 
+using namespace std;
 class Order {
-    int pizzaAmmount;
+
+public:
+    static vector<Order> createOrders(int numberOfOrders);
 };
 
 

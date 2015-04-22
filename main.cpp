@@ -1,8 +1,11 @@
 #include <iostream>
+#include "src/Util/Logger/Logger.h"
 
 using namespace std;
 
 int main() {
-    cout << "Hello, World!" << endl;
+    Logger::logger().log("Launching app...");
+
+    Logger::logger().log("Exiting app");
     return 0;
 }
