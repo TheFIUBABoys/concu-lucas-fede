@@ -8,6 +8,13 @@
 
 class Receptionist {
 
+public:
+    Receptionist();
+    bool shouldReturn;
+private:
+    int p_id;
+
+    void startPollingForOrders();
 };
 
 

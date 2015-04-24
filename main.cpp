@@ -7,31 +7,28 @@
 
 list<Order> createOrders();
 
-list<int> createReceptionists(int ammount);
+void createReceptionists(int index, int amount);
 
 using namespace std;
 
 int main() {
     Logger::logger().log("Launching app...");
     list<Order> orders = createOrders();
-    list<int> receptionists = createReceptionists(1);
+    createReceptionists(0, 2);
     Logger::logger().log("Exiting app");
     return 0;
 }
 
-list<int> createReceptionists(int ammount) {
-    list<int> pidList = list<int>();
-    for (int i = 0; i<ammount; i++){
+void createReceptionists(int index, int amount) {
+    if (index < amount) {
         int pid = fork();
-        if (pid==0){
-            //Break the loop in the children
-            return NULL;
-        }else{
-            pidList.push_back(pid);
+        if (pid == 0) {
+            Receptionist();
+        } else {
+            //Father
+            createReceptionists(index + 1, amount);
         }
     }
-    return pidList;
-
 }
 
 list<Order> createOrders() {
