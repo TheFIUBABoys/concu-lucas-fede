@@ -14,8 +14,10 @@ using namespace std;
 int main() {
     Logger::logger().log("Launching app...");
     list<Order> orders = createOrders();
+
     int resultReceptionist = createReceptionists(2);
     if (resultReceptionist == 0) return 0;
+
     Logger::logger().log("Exiting app");
     return 0;
 }
