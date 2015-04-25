@@ -71,6 +71,10 @@ int main() {
     sendOrder(orderChannel, dato);
     orderChannel.cerrar();
     processedOrdersChannel.cerrar();
+
+    /*
+     * Commemting this out fede, we need to use a different pipe channel for
+     * every line on our old diagram.
     //Create cadet processes
     ProcessType resulCadet = createCadets(2, channel);
     if (resulCadet == ProcessTypeChild) return 0;
@@ -86,6 +90,7 @@ int main() {
     sleep(4);
     std::string dato = "Hola mundo pipes!!";
     channel.escribir(dato.c_str(), (int const) dato.size());
+     */
     Logger::logger().log("Exiting app");
     return 0;
 }
