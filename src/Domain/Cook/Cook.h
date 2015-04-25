@@ -8,10 +8,11 @@
 
 #include "../Pizza/Pizza.h"
 #include "../Order/Order.h"
+#include "../../Util/Pipes/Pipe.h"
 
 class Cook {
 public:
-    Cook();
+    Cook(Pipe orderChannel);
     Pizza cookOrder(Order order);
 };
 

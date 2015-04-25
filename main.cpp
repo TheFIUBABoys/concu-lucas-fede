@@ -5,41 +5,46 @@
 #include "src/Domain/Order/Order.h"
 #include "src/Domain/Receptionist/Receptionist.h"
 #include "src/Domain/Cook/Cook.h"
+#include "src/Util/Pipes/Pipe.h"
 
-typedef enum ProcessType{
+typedef enum ProcessType {
     ProcessTypeFather,
     ProcessTypeChild
-};
+} ProcessType;
 
 list<Order> createOrders();
 
-ProcessType createReceptionists(int amount);
+ProcessType createReceptionists(int amount, Pipe &orderChannel);
 
-ProcessType createCooks(int amount) ;
+ProcessType createCooks(int amount, Pipe &orderChannel);
 
 using namespace std;
 
 int main() {
+    Pipe channel;
     Logger::logger().log("Launching app...");
     list<Order> orders = createOrders();
 
+
     //Create receptionist processes
-    ProcessType resultReceptionist = createReceptionists(2);
+    ProcessType resultReceptionist = createReceptionists(2, channel);
     if (resultReceptionist == ProcessTypeChild) return 0;
 
     //Create cook processes
-    ProcessType resultCook = createCooks(2);
+    ProcessType resultCook = createCooks(2, channel);
     if (resultCook == ProcessTypeChild) return 0;
 
+    sleep(4);
+    std::string dato = "Hola mundo pipes!!";
+    channel.escribir(dato.c_str(), (int const) dato.size());
     Logger::logger().log("Exiting app");
     return 0;
 }
 
-ProcessType createReceptionists(int amount) {
+ProcessType createReceptionists(int amount, Pipe &orderChannel) {
     for (int i = 0; i < amount; i++) {
-        int pid = fork();
-        if (pid == 0) {
-            Receptionist();
+        if (!fork()) {
+            Receptionist(orderChannel);
             return ProcessTypeChild;
         }
     }
@@ -47,11 +52,10 @@ ProcessType createReceptionists(int amount) {
     return ProcessTypeFather;
 }
 
-ProcessType createCooks(int amount) {
+ProcessType createCooks(int amount, Pipe &orderChannel) {
     for (int i = 0; i < amount; i++) {
-        int pid = fork();
-        if (pid == 0) {
-            Cook();
+        if (!fork()) {
+            Cook(Pipe());
             return ProcessTypeChild;
         }
     }

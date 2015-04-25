@@ -13,7 +13,7 @@ Pizza Cook::cookOrder(Order order) {
 }
 
 //Create receptionist in new thread and start polling for orders
-Cook::Cook() {
+Cook::Cook(Pipe orderChannel) {
     Logger::logger().log("Cook waking up");
     startPollingForOrders();
     Logger::logger().log("Cook dying");

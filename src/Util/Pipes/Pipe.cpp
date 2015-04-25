@@ -21,7 +21,7 @@ void Pipe :: setearModo ( const int modo ) {
 }
 
 ssize_t Pipe :: escribir ( const void* dato,int datoSize ) {
-	if ( this->lectura == true ) {
+	if (this->lectura) {
 		close ( this->descriptores[0] );
 		this->lectura = false;
 	}
@@ -30,7 +30,7 @@ ssize_t Pipe :: escribir ( const void* dato,int datoSize ) {
 }
 
 ssize_t Pipe :: leer ( void* buffer,const int buffSize ) {
-	if ( this->escritura == true ) {
+	if (this->escritura) {
 		close ( this->descriptores[1] );
 		this->escritura = false;
 	}
@@ -39,26 +39,26 @@ ssize_t Pipe :: leer ( void* buffer,const int buffSize ) {
 }
 
 int Pipe :: getFdLectura () const {
-	if ( this->lectura == true )
+	if (this->lectura)
 		return this->descriptores[0];
 	else
 		return -1;
 }
 
 int Pipe :: getFdEscritura () const {
-	if ( this->escritura == true )
+	if (this->escritura)
 		return this->descriptores[1];
 	else
 		return -1;
 }
 
 void Pipe :: cerrar () {
-	if ( this->lectura == true ) {
+	if (this->lectura) {
 		close ( this->descriptores[0] );
 		this->lectura = false;
 	}
 
-	if ( this->escritura == true ) {
+	if (this->escritura) {
 		close ( this->descriptores[1] );
 		this->escritura = false;
 	}

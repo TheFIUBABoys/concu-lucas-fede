@@ -7,9 +7,13 @@
 
 
 //Create receptionist in new thread and start polling for orders
-Receptionist::Receptionist() {
+Receptionist::Receptionist(Pipe& orderChannel) {
     Logger::logger().log("Receptionist waking up");
-    startPollingForOrders();
+    char buffer[BUFFSIZE];
+    ssize_t bytesLeidos = orderChannel.leer (buffer, BUFFSIZE);
+    std::string mensaje = buffer;
+    mensaje.resize ((unsigned long) bytesLeidos);
+    Logger::logger().log(string("Lei")+ string(mensaje));
     Logger::logger().log("Receptionist dying");
 }
 
@@ -22,8 +26,3 @@ void Receptionist::startPollingForOrders() {
     }
 
 }
-
-/*int main() {
-    Receptionist();
-    return 0;
-}*/

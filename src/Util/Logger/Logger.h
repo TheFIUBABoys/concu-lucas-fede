@@ -4,7 +4,7 @@
 
 #ifndef CONCUTP_LOGGER_H
 #define CONCUTP_LOGGER_H
-
+#define BUFFSIZE 100
 
 #include <string>
 
