@@ -10,6 +10,8 @@
 #include "../Order/Order.h"
 
 class Cook {
+public:
+    Cook();
     Pizza cookOrder(Order order);
 };
 
