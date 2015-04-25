@@ -15,7 +15,7 @@ Receptionist::Receptionist() {
 void Receptionist::startPollingForOrders() {
     int i = 0;
     while (true) {
-        if (i > 10) break;
+        if (i > 3) break;
         Logger::logger().log("Polling for resources");
         i++;
     }
