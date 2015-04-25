@@ -13,7 +13,7 @@ typedef enum ProcessType {
     ProcessTypeChild
 } ProcessType;
 
-#define CONFIG_FILE			 "/home/fede/ClionProjects/concu-lucas-fede/config_file.cfg"
+#define CONFIG_FILE	"/home/lucas/ClionProjects/concu-lucas-fede/config_file.cfg"
 
 list<Order> createOrders();
 
@@ -34,10 +34,10 @@ int main() {
         return 1;
     }
 
-    int recepcionistsQuantity = reader.GetInteger("parameters", "recepcionists_quantity", -1);
-    int cookersQuantity = reader.GetInteger("parameters", "cookers_quantity", -1);
-    int cadetsQuantity = reader.GetInteger("parameters", "cadets_quantity", -1);
-    int ovensQuantity = reader.GetInteger("parameters", "ovens_quantity", -1);
+    long recepcionistsQuantity = reader.GetInteger("parameters", "recepcionists_quantity", -1);
+    long cookersQuantity = reader.GetInteger("parameters", "cookers_quantity", -1);
+    long cadetsQuantity = reader.GetInteger("parameters", "cadets_quantity", -1);
+    long ovensQuantity = reader.GetInteger("parameters", "ovens_quantity", -1);
 
     list<Order> orders = createOrders();
 
@@ -59,7 +59,7 @@ int main() {
 ProcessType createReceptionists(int amount, Pipe &orderChannel) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
-            Receptionist(orderChannel);
+            Receptionist r = Receptionist(orderChannel);
             return ProcessTypeChild;
         }
     }
