@@ -115,7 +115,6 @@ ProcessType createCooks(int amount, Pipe &processedOrdersChannel) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
             Cook c = Cook(processedOrdersChannel);
-            Cook c = Cook(Pipe());
             return ProcessTypeChild;
         }
     }

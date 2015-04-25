@@ -26,7 +26,7 @@ void Cook::startPollingForOrders() {
         if (bytesLeidos > 0) {
             cookOrder(orderStr);
         } else {
-            Logger::logger().log("Lei algo vacio");
+            Logger::logger().log("Lei EOF");
             timeout++;
         }
         sleep(3);

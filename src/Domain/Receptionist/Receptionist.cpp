@@ -20,18 +20,15 @@ void Receptionist::startPollingForOrders() {
     char buffer[MESSAGE_LENGTH];
     int timeout = 0;
     while (true) {
-        Logger::logger().log(to_string(timeout));
         ssize_t bytesLeidos = orderChannel.leer(buffer, MESSAGE_LENGTH);
         std::string orderStr = buffer;
         orderStr.resize(MESSAGE_LENGTH);
-
-        Logger::logger().log(to_string(bytesLeidos));
 
         if (bytesLeidos > 0) {
             Logger::logger().log(string("Lei esto: ") + string(orderStr));
             processOrder(orderStr);
         } else {
-            Logger::logger().log("Lei algo vacio");
+            Logger::logger().log("Lei EOF");
             timeout++;
         }
         if (timeout > 3) break;
