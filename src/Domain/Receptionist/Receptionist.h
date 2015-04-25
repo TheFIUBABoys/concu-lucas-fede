@@ -11,11 +11,13 @@
 class Receptionist {
 
 public:
-    Receptionist(Pipe& orderChannel);
-    bool shouldReturn;
+    Receptionist(Pipe &theOrderChannel, Pipe &theProcessedOrdersChannel);
+
 private:
-    int p_id;
+    Pipe orderChannel, processedOrdersChannel;
+
     Receptionist() { }
+
     void startPollingForOrders();
 };
 

@@ -7,22 +7,32 @@
 
 
 //Create receptionist in new thread and start polling for orders
-Receptionist::Receptionist(Pipe& orderChannel) {
+Receptionist::Receptionist(Pipe &theOrderChannel, Pipe &theProcessedOrdersChannel) {
     Logger::logger().log("Receptionist waking up");
-    char buffer[BUFFSIZE];
-    ssize_t bytesLeidos = orderChannel.leer (buffer, BUFFSIZE);
-    std::string mensaje = buffer;
-    mensaje.resize ((unsigned long) bytesLeidos);
-    Logger::logger().log(string("Lei")+ string(mensaje));
+    orderChannel = theOrderChannel;
+    processedOrdersChannel = theProcessedOrdersChannel;
+    startPollingForOrders();
     Logger::logger().log("Receptionist dying");
 }
 
 void Receptionist::startPollingForOrders() {
-    int i = 0;
+    char buffer[BUFFSIZE];
+    int timeout = 0;
     while (true) {
-        if (i > 10) break;
-        Logger::logger().log("Waiting for orders ");
-        i++;
+        ssize_t bytesLeidos = orderChannel.leer(buffer, BUFFSIZE);
+        std::string mensaje = buffer;
+        mensaje.resize((unsigned long) bytesLeidos);
+        if (bytesLeidos > 0) {
+            Logger::logger().log(string("Lei esto: ") + string(mensaje));
+            sleep(3); //Procesar
+            string processedOrder = string("Procesada ") + string(mensaje);
+            processedOrdersChannel.escribir(processedOrder.c_str(), (int const) processedOrder.size());
+        } else {
+            Logger::logger().log("Lei algo vacio");
+            timeout++;
+        }
+        if (timeout > 10) break;
+        sleep(3);
     }
 
 }

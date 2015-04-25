@@ -7,11 +7,13 @@
 
 #include <vector>
 
+
 using namespace std;
 class Order {
 
 public:
     static vector<Order> createOrders(int numberOfOrders);
+
 };
 
 

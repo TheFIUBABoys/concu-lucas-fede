@@ -3,10 +3,11 @@
 //
 
 #include <iostream>
+#include <unistd.h>
 #include "Logger.h"
 
 void Logger::log(string value) {
     if (debug) {
-        cout << value << endl;
+        cout << getpid() << " - "<< value << endl;
     }
 }

@@ -17,14 +17,16 @@ typedef enum ProcessType {
 
 list<Order> createOrders();
 
-ProcessType createReceptionists(int amount, Pipe &orderChannel);
 
-ProcessType createCooks(int amount, Pipe &orderChannel);
+ProcessType createCooks(int amount, Pipe &processedOrdersChannel);
+
+ProcessType createReceptionists(int amount, Pipe &orderChannel, Pipe &processedOrdersChannel) ;
 
 using namespace std;
 
 int main() {
-    Pipe channel;
+    Pipe orderChannel;
+    Pipe processedOrdersChannel;
     Logger::logger().log("Launching app...");
 
     INIReader reader(CONFIG_FILE);
@@ -42,24 +44,26 @@ int main() {
     list<Order> orders = createOrders();
 
     //Create receptionist processes
-    ProcessType resultReceptionist = createReceptionists(2, channel);
+    ProcessType resultReceptionist = createReceptionists(2, orderChannel, processedOrdersChannel);
     if (resultReceptionist == ProcessTypeChild) return 0;
 
     //Create cook processes
-    ProcessType resultCook = createCooks(2, channel);
+    ProcessType resultCook = createCooks(2, processedOrdersChannel);
     if (resultCook == ProcessTypeChild) return 0;
 
-    sleep(4);
-    std::string dato = "Hola mundo pipes!!";
-    channel.escribir(dato.c_str(), (int const) dato.size());
+    sleep(2);
+    std::string dato = "Orden 1";
+    orderChannel.escribir(dato.c_str(), (int const) dato.size());
+    dato = "Orden 2";
+    orderChannel.escribir(dato.c_str(), (int const) dato.size());
     Logger::logger().log("Exiting app");
     return 0;
 }
 
-ProcessType createReceptionists(int amount, Pipe &orderChannel) {
+ProcessType createReceptionists(int amount, Pipe &orderChannel, Pipe &processedOrdersChannel) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
-            Receptionist r = Receptionist(orderChannel);
+            Receptionist r = Receptionist(orderChannel, processedOrdersChannel);
             return ProcessTypeChild;
         }
     }
@@ -67,10 +71,10 @@ ProcessType createReceptionists(int amount, Pipe &orderChannel) {
     return ProcessTypeFather;
 }
 
-ProcessType createCooks(int amount, Pipe &orderChannel) {
+ProcessType createCooks(int amount, Pipe &processedOrdersChannel) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
-            Cook(Pipe());
+            Cook c = Cook(processedOrdersChannel);
             return ProcessTypeChild;
         }
     }

@@ -14,6 +14,11 @@ class Cook {
 public:
     Cook(Pipe orderChannel);
     Pizza cookOrder(Order order);
+
+private:
+    Pipe processedOrdersChannel;
+
+    void startPollingForOrders();
 };
 
 
