@@ -10,6 +10,9 @@
 #include "src/Config/Config.h"
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "src/Domain/Oven/Oven.h"
+#include "src/Domain/Cadet/Cadet.h"
+#include "src/Domain/Supervisor/Supervisor.h"
 
 typedef enum ProcessType {
     ProcessTypeFather,
@@ -25,6 +28,12 @@ ProcessType createCooks(int amount, Pipe &processedOrdersChannel);
 ProcessType createReceptionists(int amount, Pipe &orderChannel, Pipe &processedOrdersChannel);
 
 void sendOrder(Pipe &orderChannel, string &dato);
+
+ProcessType createOvens(int amount, Pipe &orderChannel);
+
+ProcessType createCadets(int amount, Pipe &orderChannel);
+
+ProcessType createSupervisor(Pipe &orderChannel);
 
 using namespace std;
 
@@ -62,6 +71,21 @@ int main() {
     sendOrder(orderChannel, dato);
     orderChannel.cerrar();
     processedOrdersChannel.cerrar();
+    //Create cadet processes
+    ProcessType resulCadet = createCadets(2, channel);
+    if (resulCadet == ProcessTypeChild) return 0;
+
+    //Create oven processes
+    ProcessType resulOven = createOvens(2, channel);
+    if (resulOven == ProcessTypeChild) return 0;
+
+    //Create Supervisor
+    ProcessType resulSupervisor = createSupervisor(channel);
+    if (resulSupervisor == ProcessTypeChild) return 0;
+
+    sleep(4);
+    std::string dato = "Hola mundo pipes!!";
+    channel.escribir(dato.c_str(), (int const) dato.size());
     Logger::logger().log("Exiting app");
     return 0;
 }
@@ -86,8 +110,40 @@ ProcessType createCooks(int amount, Pipe &processedOrdersChannel) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
             Cook c = Cook(processedOrdersChannel);
+            Cook c = Cook(Pipe());
             return ProcessTypeChild;
         }
+    }
+
+    return ProcessTypeFather;
+}
+
+ProcessType createOvens(int amount, Pipe &orderChannel) {
+    for (int i = 0; i < amount; i++) {
+        if (!fork()) {
+            Oven o = Oven(Pipe());
+            return ProcessTypeChild;
+        }
+    }
+
+    return ProcessTypeFather;
+}
+
+ProcessType createCadets(int amount, Pipe &orderChannel) {
+    for (int i = 0; i < amount; i++) {
+        if (!fork()) {
+            Cadet c = Cadet(Pipe());
+            return ProcessTypeChild;
+        }
+    }
+
+    return ProcessTypeFather;
+}
+
+ProcessType createSupervisor(Pipe &orderChannel) {
+    if (!fork()) {
+        Supervisor s = Supervisor(Pipe());
+        return ProcessTypeChild;
     }
 
     return ProcessTypeFather;
