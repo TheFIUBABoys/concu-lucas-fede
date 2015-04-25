@@ -5,10 +5,7 @@
 #include <unistd.h>
 #include "Cook.h"
 #include "../../Util/Logger/Logger.h"
-
-Pizza Cook::cookOrder(Order order) {
-    return Pizza();
-}
+#include "../../Config/Config.h"
 
 //Create receptionist in new thread and start polling for orders
 Cook::Cook(Pipe orderChannel) {
@@ -20,22 +17,25 @@ Cook::Cook(Pipe orderChannel) {
 
 void Cook::startPollingForOrders() {
 
-    char buffer[BUFFSIZE];
+    char buffer[MESSAGE_LENGTH];
     int timeout = 0;
     while (true) {
-        ssize_t bytesLeidos = processedOrdersChannel.leer(buffer, BUFFSIZE);
-        std::string mensaje = buffer;
-        mensaje.resize((unsigned long) bytesLeidos);
+        ssize_t bytesLeidos = processedOrdersChannel.leer(buffer, MESSAGE_LENGTH);
+        std::string orderStr = buffer;
+        orderStr.resize(MESSAGE_LENGTH);
         if (bytesLeidos > 0) {
-            Logger::logger().log(string("Me llego esta orden: ") + string(mensaje));
-            string processedOrder = string("Preparé ") + string(mensaje);
-            processedOrdersChannel.escribir(processedOrder.c_str(), (int const) processedOrder.size());
+            cookOrder(orderStr);
         } else {
             Logger::logger().log("Lei algo vacio");
             timeout++;
         }
-        if (timeout > 10) break;
         sleep(3);
+        if (timeout > 3) break;
     }
-    Logger::logger().log("Cook waking up");
+}
+
+void Cook::cookOrder(string &orderStr) {
+    Logger::logger().log(string("Me llego esta orden: ") + string(orderStr));
+    string processedOrder = string("Preparé ") + string(orderStr);
+    processedOrdersChannel.escribir(processedOrder.c_str(), (int const) processedOrder.size());
 }

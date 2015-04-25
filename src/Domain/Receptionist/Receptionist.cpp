@@ -4,6 +4,7 @@
 
 #include "Receptionist.h"
 #include "../../Util/Logger/Logger.h"
+#include "../../Config/Config.h"
 
 
 //Create receptionist in new thread and start polling for orders
@@ -16,23 +17,33 @@ Receptionist::Receptionist(Pipe &theOrderChannel, Pipe &theProcessedOrdersChanne
 }
 
 void Receptionist::startPollingForOrders() {
-    char buffer[BUFFSIZE];
+    char buffer[MESSAGE_LENGTH];
     int timeout = 0;
     while (true) {
-        ssize_t bytesLeidos = orderChannel.leer(buffer, BUFFSIZE);
-        std::string mensaje = buffer;
-        mensaje.resize((unsigned long) bytesLeidos);
+        Logger::logger().log(to_string(timeout));
+        ssize_t bytesLeidos = orderChannel.leer(buffer, MESSAGE_LENGTH);
+        std::string orderStr = buffer;
+        orderStr.resize(MESSAGE_LENGTH);
+
+        Logger::logger().log(to_string(bytesLeidos));
+
         if (bytesLeidos > 0) {
-            Logger::logger().log(string("Lei esto: ") + string(mensaje));
-            sleep(3); //Procesar
-            string processedOrder = string("Procesada ") + string(mensaje);
-            processedOrdersChannel.escribir(processedOrder.c_str(), (int const) processedOrder.size());
+            Logger::logger().log(string("Lei esto: ") + string(orderStr));
+            processOrder(orderStr);
         } else {
             Logger::logger().log("Lei algo vacio");
             timeout++;
         }
-        if (timeout > 10) break;
+        if (timeout > 3) break;
         sleep(3);
     }
 
+}
+
+void Receptionist::processOrder(string &orderStr) {
+    sleep(3); //Procesar
+    string processedOrder = string("Procesada ") + string(orderStr);
+    Logger::logger().log(processedOrder);
+    processedOrder.resize(MESSAGE_LENGTH);
+    processedOrdersChannel.escribir(processedOrder.c_str(), MESSAGE_LENGTH);
 }

@@ -7,6 +7,8 @@
 
 
 #include "../../Util/Pipes/Pipe.h"
+#include <string>
+
 
 class Receptionist {
 
@@ -19,6 +21,8 @@ private:
     Receptionist() { }
 
     void startPollingForOrders();
+
+    void processOrder(std::string &orderStr);
 };
 
 

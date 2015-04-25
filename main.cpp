@@ -7,20 +7,24 @@
 #include "src/Domain/Receptionist/Receptionist.h"
 #include "src/Domain/Cook/Cook.h"
 #include "src/Util/Pipes/Pipe.h"
+#include "src/Config/Config.h"
+#include <sys/types.h>
+#include <sys/wait.h>
 
 typedef enum ProcessType {
     ProcessTypeFather,
     ProcessTypeChild
 } ProcessType;
 
-#define CONFIG_FILE	"/home/lucas/ClionProjects/concu-lucas-fede/config_file.cfg"
 
 list<Order> createOrders();
 
 
 ProcessType createCooks(int amount, Pipe &processedOrdersChannel);
 
-ProcessType createReceptionists(int amount, Pipe &orderChannel, Pipe &processedOrdersChannel) ;
+ProcessType createReceptionists(int amount, Pipe &orderChannel, Pipe &processedOrdersChannel);
+
+void sendOrder(Pipe &orderChannel, string &dato);
 
 using namespace std;
 
@@ -44,20 +48,27 @@ int main() {
     list<Order> orders = createOrders();
 
     //Create receptionist processes
-    ProcessType resultReceptionist = createReceptionists(2, orderChannel, processedOrdersChannel);
+    ProcessType resultReceptionist = createReceptionists(1, orderChannel, processedOrdersChannel);
     if (resultReceptionist == ProcessTypeChild) return 0;
 
     //Create cook processes
-    ProcessType resultCook = createCooks(2, processedOrdersChannel);
+    ProcessType resultCook = createCooks(1, processedOrdersChannel);
     if (resultCook == ProcessTypeChild) return 0;
 
     sleep(2);
     std::string dato = "Orden 1";
-    orderChannel.escribir(dato.c_str(), (int const) dato.size());
+    sendOrder(orderChannel, dato);
     dato = "Orden 2";
-    orderChannel.escribir(dato.c_str(), (int const) dato.size());
+    sendOrder(orderChannel, dato);
+    orderChannel.cerrar();
+    processedOrdersChannel.cerrar();
     Logger::logger().log("Exiting app");
     return 0;
+}
+
+void sendOrder(Pipe &orderChannel, string &dato) {
+    dato.resize(MESSAGE_LENGTH);
+    orderChannel.escribir(dato.c_str(), (int const) dato.size());
 }
 
 ProcessType createReceptionists(int amount, Pipe &orderChannel, Pipe &processedOrdersChannel) {
