@@ -2,6 +2,7 @@
 #include <list>
 #include <unistd.h>
 #include "src/Util/Logger/Logger.h"
+#include "src/Util/INIReader/INIReader.h"
 #include "src/Domain/Order/Order.h"
 #include "src/Domain/Receptionist/Receptionist.h"
 #include "src/Domain/Cook/Cook.h"
@@ -11,6 +12,8 @@ typedef enum ProcessType {
     ProcessTypeFather,
     ProcessTypeChild
 } ProcessType;
+
+#define CONFIG_FILE			 "/home/fede/ClionProjects/concu-lucas-fede/config_file.cfg"
 
 list<Order> createOrders();
 
@@ -23,8 +26,20 @@ using namespace std;
 int main() {
     Pipe channel;
     Logger::logger().log("Launching app...");
-    list<Order> orders = createOrders();
 
+    INIReader reader(CONFIG_FILE);
+
+    if (reader.ParseError() < 0) {
+        std::cout << "Can't load 'config_file.ini'\n";
+        return 1;
+    }
+
+    int recepcionistsQuantity = reader.GetInteger("parameters", "recepcionists_quantity", -1);
+    int cookersQuantity = reader.GetInteger("parameters", "cookers_quantity", -1);
+    int cadetsQuantity = reader.GetInteger("parameters", "cadets_quantity", -1);
+    int ovensQuantity = reader.GetInteger("parameters", "ovens_quantity", -1);
+
+    list<Order> orders = createOrders();
 
     //Create receptionist processes
     ProcessType resultReceptionist = createReceptionists(2, channel);
