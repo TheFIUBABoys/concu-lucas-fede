@@ -48,10 +48,10 @@ int main() {
         return 1;
     }
 
-    long receptionistQuantity = reader.GetInteger("parameters", "recepcionists_quantity", -1);
-    long cookQuantity = reader.GetInteger("parameters", "cookers_quantity", -1);
-    long cadetsQuantity = reader.GetInteger("parameters", "cadets_quantity", -1);
-    long ovensQuantity = reader.GetInteger("parameters", "ovens_quantity", -1);
+    long receptionistQuantity = reader.GetInteger("parameters", "receptionists", -1);
+    long cookQuantity = reader.GetInteger("parameters", "cooks", -1);
+    long cadetsQuantity = reader.GetInteger("parameters", "cadets", -1);
+    long ovensQuantity = reader.GetInteger("parameters", "ovens", -1);
 
     list<Order> orders = createOrders();
 
