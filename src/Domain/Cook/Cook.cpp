@@ -28,13 +28,13 @@ void Cook::startPollingForOrders() {
             Logger::logger().log("Lei EOF");
             break;
         }
-        sleep(1);
     }
 }
 
 void Cook::cookOrder(string &orderStr) {
     Logger::logger().log(string("Me llego esta orden: ") + string(orderStr));
     string processedOrder = string("Preparé ") + string(orderStr);
+    Logger::logger().log(processedOrder);
     //Send in other channel
     //processedOrdersChannel.escribir(processedOrder.c_str(), (int const) processedOrder.size());
 }

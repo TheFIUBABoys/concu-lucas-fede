@@ -31,7 +31,6 @@ void Receptionist::startPollingForOrders() {
             processedOrdersChannel.cerrar();
             break;
         }
-        sleep(1);
     }
 
 }

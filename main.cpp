@@ -28,7 +28,7 @@ ProcessType createReceptionists(long amount, Pipe &orderChannel, Pipe &processed
 
 void sendOrder(Pipe &orderChannel, string dato);
 
-ProcessType createOvens(int amount, Pipe &orderChannel);
+ProcessType createOvens(int amount, Pipe &pizzaChannel, vector<Pipe> unusedPipes);
 
 ProcessType createCadets(int amount, Pipe &orderChannel);
 
@@ -78,7 +78,7 @@ int main() {
     processedOrdersChannel.cerrar();
 
     //Esperar por los hijos
-    for (int i=0; i< receptionistQuantity + cookQuantity;i++){
+    for (int i=0; i< receptionistQuantity + cookQuantity + cadetsQuantity + ovensQuantity;i++){
         wait(NULL);
     }
 
@@ -135,10 +135,13 @@ ProcessType createCooks(long amount, Pipe &orderChannel, Pipe &processedOrdersCh
     return ProcessTypeFather;
 }
 
-ProcessType createOvens(int amount, Pipe &orderChannel) {
+ProcessType createOvens(int amount, Pipe &pizzaChannel, vector<Pipe> unusedPipes) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
-            Oven o = Oven(Pipe());
+            for( vector<Pipe>::iterator it =  unusedPipes.begin(); it != unusedPipes.end(); ++it) {
+                (*it).cerrar();
+            }
+            Oven o = Oven(pizzaChannel);
             return ProcessTypeChild;
         }
     }

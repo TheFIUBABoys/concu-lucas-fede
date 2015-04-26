@@ -6,14 +6,21 @@
 #define CONCUTP_OVEN_H
 
 
+#include <bits/basic_string.h>
 #include "../Pizza/Pizza.h"
 #include "../Order/Order.h"
 #include "../../Util/Pipes/Pipe.h"
 
 class Oven {
 public:
-    Oven(Pipe orderChannel);
+    Oven(Pipe& orderChannel);
     Pizza cookOrder(Order order);
+
+    void startWaitingForPizzas();
+private:
+    Pipe pizzaChannel;
+
+    void cookPizza(string pizza);
 };
 
 
