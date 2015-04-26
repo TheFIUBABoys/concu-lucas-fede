@@ -1,4 +1,6 @@
+#include <iostream>
 #include "Pipe.h"
+#include "../Logger/Logger.h"
 
 Pipe :: Pipe() : lectura(true), escritura(true) {
 	pipe ( this->descriptores );
@@ -24,7 +26,6 @@ ssize_t Pipe :: escribir ( const void* dato,int datoSize ) {
 		close ( this->descriptores[0] );
 		this->lectura = false;
 	}
-
 	return write ( this->descriptores[1],dato,datoSize );
 }
 

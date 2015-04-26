@@ -17,8 +17,7 @@ Cook::Cook(Pipe orderChannel) {
 
 void Cook::startPollingForOrders() {
 
-    char buffer[MESSAGE_LENGTH];
-    int timeout = 0;
+    char buffer[MESSAGE_LENGTH];;
     while (true) {
         ssize_t bytesLeidos = processedOrdersChannel.leer(buffer, MESSAGE_LENGTH);
         std::string orderStr = buffer;
@@ -27,15 +26,15 @@ void Cook::startPollingForOrders() {
             cookOrder(orderStr);
         } else {
             Logger::logger().log("Lei EOF");
-            timeout++;
+            break;
         }
-        sleep(3);
-        if (timeout > 3) break;
+        sleep(1);
     }
 }
 
 void Cook::cookOrder(string &orderStr) {
     Logger::logger().log(string("Me llego esta orden: ") + string(orderStr));
     string processedOrder = string("Preparé ") + string(orderStr);
-    processedOrdersChannel.escribir(processedOrder.c_str(), (int const) processedOrder.size());
+    //Send in other channel
+    //processedOrdersChannel.escribir(processedOrder.c_str(), (int const) processedOrder.size());
 }

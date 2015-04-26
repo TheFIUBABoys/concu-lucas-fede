@@ -18,7 +18,6 @@ Receptionist::Receptionist(Pipe &theOrderChannel, Pipe &theProcessedOrdersChanne
 
 void Receptionist::startPollingForOrders() {
     char buffer[MESSAGE_LENGTH];
-    int timeout = 0;
     while (true) {
         ssize_t bytesLeidos = orderChannel.leer(buffer, MESSAGE_LENGTH);
         std::string orderStr = buffer;
@@ -29,18 +28,20 @@ void Receptionist::startPollingForOrders() {
             processOrder(orderStr);
         } else {
             Logger::logger().log("Lei EOF");
-            timeout++;
+            processedOrdersChannel.cerrar();
+            break;
         }
-        if (timeout > 3) break;
-        sleep(3);
+        sleep(1);
     }
 
 }
 
 void Receptionist::processOrder(string &orderStr) {
-    sleep(3); //Procesar
     string processedOrder = string("Procesada ") + string(orderStr);
     Logger::logger().log(processedOrder);
     processedOrder.resize(MESSAGE_LENGTH);
-    processedOrdersChannel.escribir(processedOrder.c_str(), MESSAGE_LENGTH);
+    if(int written = processedOrdersChannel.escribir(processedOrder.c_str(), MESSAGE_LENGTH)!=MESSAGE_LENGTH){
+        Logger::logger().log(string("Error al escribir procesada")+to_string(written));
+        perror("Proccessed pipe");
+    }
 }

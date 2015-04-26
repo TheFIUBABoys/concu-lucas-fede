@@ -22,12 +22,11 @@ typedef enum ProcessType {
 
 list<Order> createOrders();
 
+ProcessType createCooks(long amount, Pipe &orderChannel, Pipe &processedOrdersChannel);
 
-ProcessType createCooks(int amount, Pipe &processedOrdersChannel);
+ProcessType createReceptionists(long amount, Pipe &orderChannel, Pipe &processedOrdersChannel);
 
-ProcessType createReceptionists(int amount, Pipe &orderChannel, Pipe &processedOrdersChannel);
-
-void sendOrder(Pipe &orderChannel, string &dato);
+void sendOrder(Pipe &orderChannel, string dato);
 
 ProcessType createOvens(int amount, Pipe &orderChannel);
 
@@ -49,28 +48,40 @@ int main() {
         return 1;
     }
 
-    long recepcionistsQuantity = reader.GetInteger("parameters", "recepcionists_quantity", -1);
-    long cookersQuantity = reader.GetInteger("parameters", "cookers_quantity", -1);
+    long receptionistQuantity = reader.GetInteger("parameters", "recepcionists_quantity", -1);
+    long cookQuantity = reader.GetInteger("parameters", "cookers_quantity", -1);
     long cadetsQuantity = reader.GetInteger("parameters", "cadets_quantity", -1);
     long ovensQuantity = reader.GetInteger("parameters", "ovens_quantity", -1);
 
     list<Order> orders = createOrders();
 
     //Create receptionist processes
-    ProcessType resultReceptionist = createReceptionists(1, orderChannel, processedOrdersChannel);
+    ProcessType resultReceptionist = createReceptionists(receptionistQuantity, orderChannel, processedOrdersChannel);
     if (resultReceptionist == ProcessTypeChild) return 0;
 
     //Create cook processes
-    ProcessType resultCook = createCooks(1, processedOrdersChannel);
-    if (resultCook == ProcessTypeChild) return 0;
+    ProcessType resultCook = createCooks(cookQuantity, orderChannel, processedOrdersChannel);
+    if (resultCook == ProcessTypeChild) {
+        return 0;
+    }
 
     sleep(2);
-    std::string dato = "Orden 1";
-    sendOrder(orderChannel, dato);
-    dato = "Orden 2";
-    sendOrder(orderChannel, dato);
+    for (int i=0;i<4;i++){
+        std::string dato = "Orden ";
+        sendOrder(orderChannel, dato + to_string(i));
+    }
+
+    //No hay mas ordenes
     orderChannel.cerrar();
+
+    //Cerramos el de procesadas porque no se usa desde main.
     processedOrdersChannel.cerrar();
+
+    //Esperar por los hijos
+    for (int i=0; i< receptionistQuantity + cookQuantity;i++){
+        wait(NULL);
+    }
+
 
     /*
      * Commemting this out fede, we need to use a different pipe channel for
@@ -95,12 +106,12 @@ int main() {
     return 0;
 }
 
-void sendOrder(Pipe &orderChannel, string &dato) {
+void sendOrder(Pipe &orderChannel, string dato) {
     dato.resize(MESSAGE_LENGTH);
     orderChannel.escribir(dato.c_str(), (int const) dato.size());
 }
 
-ProcessType createReceptionists(int amount, Pipe &orderChannel, Pipe &processedOrdersChannel) {
+ProcessType createReceptionists(long amount, Pipe &orderChannel, Pipe &processedOrdersChannel) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
             Receptionist r = Receptionist(orderChannel, processedOrdersChannel);
@@ -111,9 +122,11 @@ ProcessType createReceptionists(int amount, Pipe &orderChannel, Pipe &processedO
     return ProcessTypeFather;
 }
 
-ProcessType createCooks(int amount, Pipe &processedOrdersChannel) {
+ProcessType createCooks(long amount, Pipe &orderChannel, Pipe &processedOrdersChannel) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
+            //Close order channel since cooks don't use it.
+            orderChannel.cerrar();
             Cook c = Cook(processedOrdersChannel);
             return ProcessTypeChild;
         }
