@@ -7,10 +7,9 @@
 #include "../../Config/Config.h"
 
 
-//Create receptionist in new thread and start polling for orders
-Receptionist::Receptionist(Pipe &theOrderChannel, Pipe &theProcessedOrdersChannel) {
+Receptionist::Receptionist(Pipe &theProcessedOrdersChannel) {
     Logger::logger().log("Receptionist waking up");
-    orderChannel = theOrderChannel;
+    orderChannel.abrir();
     processedOrdersChannel = theProcessedOrdersChannel;
     startPollingForOrders();
     Logger::logger().log("Receptionist dying");
@@ -24,7 +23,7 @@ void Receptionist::startPollingForOrders() {
         orderStr.resize(MESSAGE_LENGTH);
 
         if (bytesLeidos > 0) {
-            Logger::logger().log(string("Lei esto: ") + string(orderStr));
+            Logger::logger().log(string("Recepcionista recibe ") + string(orderStr));
             processOrder(orderStr);
         } else {
             Logger::logger().log("Lei EOF");
@@ -36,11 +35,15 @@ void Receptionist::startPollingForOrders() {
 }
 
 void Receptionist::processOrder(string &orderStr) {
-    string processedOrder = string("Procesada ") + string(orderStr);
+    string processedOrder = string("Recepcionista procesa ") + orderStr;
     Logger::logger().log(processedOrder);
     processedOrder.resize(MESSAGE_LENGTH);
-    if(int written = processedOrdersChannel.escribir(processedOrder.c_str(), MESSAGE_LENGTH)!=MESSAGE_LENGTH){
+    if(int written = processedOrdersChannel.escribir(orderStr.c_str(), MESSAGE_LENGTH)!=MESSAGE_LENGTH){
         Logger::logger().log(string("Error al escribir procesada")+to_string(written));
         perror("Proccessed pipe");
     }
+}
+
+std::string Receptionist::getFifoName() {
+    return "OrderFifo";
 }

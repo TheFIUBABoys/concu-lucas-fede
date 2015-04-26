@@ -22,6 +22,7 @@ void Cook::startPollingForOrders() {
         ssize_t bytesLeidos = processedOrdersChannel.leer(buffer, MESSAGE_LENGTH);
         std::string orderStr = buffer;
         orderStr.resize(MESSAGE_LENGTH);
+        Logger::logger().log(string("Cocinera recibe ") + orderStr);
         if (bytesLeidos > 0) {
             cookOrder(orderStr);
         } else {
@@ -31,9 +32,8 @@ void Cook::startPollingForOrders() {
     }
 }
 
-void Cook::cookOrder(string &orderStr) {
-    Logger::logger().log(string("Me llego esta orden: ") + string(orderStr));
-    string processedOrder = string("Preparé ") + string(orderStr);
+void Cook::cookOrder(string &orderStr) { ;
+    string processedOrder = string("Cocinera cocina ") + string(orderStr);
     Logger::logger().log(processedOrder);
     //Send in other channel
     //processedOrdersChannel.escribir(processedOrder.c_str(), (int const) processedOrder.size());

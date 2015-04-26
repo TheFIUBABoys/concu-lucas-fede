@@ -13,6 +13,7 @@
 #include "src/Domain/Oven/Oven.h"
 #include "src/Domain/Cadet/Cadet.h"
 #include "src/Domain/Supervisor/Supervisor.h"
+#include "src/Util/Fifos/FifoEscritura.h"
 
 typedef enum ProcessType {
     ProcessTypeFather,
@@ -22,9 +23,9 @@ typedef enum ProcessType {
 
 list<Order> createOrders();
 
-ProcessType createCooks(long amount, Pipe &orderChannel, Pipe &processedOrdersChannel);
+ProcessType createCooks(long amount, Pipe &processedOrdersChannel);
 
-ProcessType createReceptionists(long amount, Pipe &orderChannel, Pipe &processedOrdersChannel);
+ProcessType createReceptionists(long amount, Pipe &processedOrdersChannel);
 
 void sendOrder(Pipe &orderChannel, string dato);
 
@@ -37,7 +38,6 @@ ProcessType createSupervisor(Pipe &orderChannel);
 using namespace std;
 
 int main() {
-    Pipe orderChannel;
     Pipe processedOrdersChannel;
     Logger::logger().log("Launching app...");
 
@@ -56,29 +56,33 @@ int main() {
     list<Order> orders = createOrders();
 
     //Create receptionist processes
-    ProcessType resultReceptionist = createReceptionists(receptionistQuantity, orderChannel, processedOrdersChannel);
+    ProcessType resultReceptionist = createReceptionists(receptionistQuantity, processedOrdersChannel);
     if (resultReceptionist == ProcessTypeChild) return 0;
 
     //Create cook processes
-    ProcessType resultCook = createCooks(cookQuantity, orderChannel, processedOrdersChannel);
+    ProcessType resultCook = createCooks(cookQuantity, processedOrdersChannel);
     if (resultCook == ProcessTypeChild) {
         return 0;
     }
 
     sleep(2);
-    for (int i=0;i<4;i++){
-        std::string dato = "Orden ";
-        sendOrder(orderChannel, dato + to_string(i));
-    }
 
-    //No hay mas ordenes
-    orderChannel.cerrar();
+    FifoEscritura fifo = FifoEscritura(Receptionist::getFifoName());
+    fifo.abrir();
+    for (int i = 0; i < 4; i++) {
+        std::string dato = "Orden ";
+        dato = dato + to_string(i);
+        dato.resize(MESSAGE_LENGTH);
+        fifo.escribir(dato.c_str(), (int const) dato.size());
+    }
+    fifo.cerrar();
+
 
     //Cerramos el de procesadas porque no se usa desde main.
     processedOrdersChannel.cerrar();
 
     //Esperar por los hijos
-    for (int i=0; i< receptionistQuantity + cookQuantity + cadetsQuantity + ovensQuantity;i++){
+    for (int i = 0; i < receptionistQuantity + cookQuantity + cadetsQuantity + ovensQuantity; i++) {
         wait(NULL);
     }
 
@@ -106,15 +110,11 @@ int main() {
     return 0;
 }
 
-void sendOrder(Pipe &orderChannel, string dato) {
-    dato.resize(MESSAGE_LENGTH);
-    orderChannel.escribir(dato.c_str(), (int const) dato.size());
-}
 
-ProcessType createReceptionists(long amount, Pipe &orderChannel, Pipe &processedOrdersChannel) {
+ProcessType createReceptionists(long amount, Pipe &processedOrdersChannel) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
-            Receptionist r = Receptionist(orderChannel, processedOrdersChannel);
+            Receptionist r = Receptionist(processedOrdersChannel);
             return ProcessTypeChild;
         }
     }
@@ -122,11 +122,9 @@ ProcessType createReceptionists(long amount, Pipe &orderChannel, Pipe &processed
     return ProcessTypeFather;
 }
 
-ProcessType createCooks(long amount, Pipe &orderChannel, Pipe &processedOrdersChannel) {
+ProcessType createCooks(long amount, Pipe &processedOrdersChannel) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
-            //Close order channel since cooks don't use it.
-            orderChannel.cerrar();
             Cook c = Cook(processedOrdersChannel);
             return ProcessTypeChild;
         }
@@ -138,7 +136,7 @@ ProcessType createCooks(long amount, Pipe &orderChannel, Pipe &processedOrdersCh
 ProcessType createOvens(int amount, Pipe &pizzaChannel, vector<Pipe> unusedPipes) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
-            for( vector<Pipe>::iterator it =  unusedPipes.begin(); it != unusedPipes.end(); ++it) {
+            for (vector<Pipe>::iterator it = unusedPipes.begin(); it != unusedPipes.end(); ++it) {
                 (*it).cerrar();
             }
             Oven o = Oven(pizzaChannel);

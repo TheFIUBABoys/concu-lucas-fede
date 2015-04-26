@@ -7,18 +7,18 @@
 
 
 #include "../../Util/Pipes/Pipe.h"
+#include "../../Util/Fifos/FifoLectura.h"
 #include <string>
 
 
 class Receptionist {
 
 public:
-    Receptionist(Pipe &theOrderChannel, Pipe &theProcessedOrdersChannel);
-
+    Receptionist(Pipe &theProcessedOrdersChannel);
+    static std::string getFifoName();
 private:
-    Pipe orderChannel, processedOrdersChannel;
-
-    Receptionist() { }
+    FifoLectura orderChannel = FifoLectura(Receptionist::getFifoName());;
+    Pipe processedOrdersChannel;
 
     void startPollingForOrders();
 
