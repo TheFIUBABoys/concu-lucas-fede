@@ -11,9 +11,9 @@ Pizza Oven::cookOrder(Order order) {
     return Pizza();
 }
 
-Oven::Oven(Pipe &thePizzaChannel) {
+Oven::Oven() {
     Logger::logger().log("Preheating oven");
-    pizzaChannel = thePizzaChannel;
+    pizzaChannel.abrir();
     startWaitingForPizzas();
     Logger::logger().log("Oven shutting down");
 }
@@ -27,16 +27,17 @@ void Oven::startWaitingForPizzas() {
         if (bytesLeidos > 0) {
             cookPizza(pizzaStr);
         } else {
-            Logger::logger().log("Lei EOF");
+            Logger::logger().log("Horno lee EOF");
+            pizzaChannel.cerrar();
             break;
         }
     }
 }
 
 void Oven::cookPizza(string pizzaStr) {
-    Logger::logger().log(string("Cooking pizza: ") + pizzaStr);
+    Logger::logger().log(string("Cocinando pizza: ") + pizzaStr);
     default_random_engine generator;
     uniform_int_distribution<int> distribution(1, 6);
     sleep((unsigned int) distribution(generator));
-    Logger::logger().log(string("Finished cooking pizza: ") + pizzaStr);
+    Logger::logger().log(string("Termino de cocinar pizza: ") + pizzaStr);
 }

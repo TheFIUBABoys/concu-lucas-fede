@@ -21,28 +21,22 @@ typedef enum ProcessType {
 } ProcessType;
 
 
-list<Order> createOrders();
-
 ProcessType createCooks(long amount);
 
 ProcessType createReceptionists(long amount);
-
-void sendOrder(Pipe &orderChannel, string dato);
-
-ProcessType createOvens(int amount, Pipe &pizzaChannel, vector<Pipe> unusedPipes);
 
 ProcessType createCadets(int amount, Pipe &orderChannel);
 
 ProcessType createSupervisor(Pipe &orderChannel);
 
+ProcessType createOvens(long amount) ;
+
 using namespace std;
 
 int main() {
-    Pipe processedOrdersChannel;
     Logger::logger().log("Launching app...");
 
     INIReader reader(CONFIG_FILE);
-
     if (reader.ParseError() < 0) {
         std::cout << "Can't load 'config_file.ini'\n";
         return 1;
@@ -51,9 +45,8 @@ int main() {
     long receptionistQuantity = reader.GetInteger("parameters", "receptionists", -1);
     long cookQuantity = reader.GetInteger("parameters", "cooks", -1);
     long cadetsQuantity = reader.GetInteger("parameters", "cadets", -1);
-    long ovensQuantity = reader.GetInteger("parameters", "ovens", -1);
+    long ovenQuantity = reader.GetInteger("parameters", "ovens", -1);
 
-    list<Order> orders = createOrders();
 
     //Create receptionist processes
     ProcessType resultReceptionist = createReceptionists(receptionistQuantity);
@@ -65,11 +58,16 @@ int main() {
         return 0;
     }
 
+    ProcessType resultOvens = createOvens(ovenQuantity);
+    if (resultOvens == ProcessTypeChild) {
+        return 0;
+    }
+
     sleep(2);
 
     FifoEscritura fifo = FifoEscritura(Receptionist::getOrderFifoName());
     fifo.abrir();
-    for (int i = 0; i < 4; i++) {
+    for (int i = 1; i < 5; i++) {
         std::string dato = "Orden ";
         dato = dato + to_string(i);
         dato.resize(MESSAGE_LENGTH);
@@ -77,12 +75,8 @@ int main() {
     }
     fifo.cerrar();
 
-
-    //Cerramos el de procesadas porque no se usa desde main.
-    processedOrdersChannel.cerrar();
-
     //Esperar por los hijos
-    for (int i = 0; i < receptionistQuantity + cookQuantity + cadetsQuantity + ovensQuantity; i++) {
+    for (int i = 0; i < receptionistQuantity + cookQuantity + cadetsQuantity + ovenQuantity; i++) {
         wait(NULL);
     }
 
@@ -133,13 +127,12 @@ ProcessType createCooks(long amount) {
     return ProcessTypeFather;
 }
 
-ProcessType createOvens(int amount, Pipe &pizzaChannel, vector<Pipe> unusedPipes) {
+
+
+ProcessType createOvens(long amount) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
-            for (vector<Pipe>::iterator it = unusedPipes.begin(); it != unusedPipes.end(); ++it) {
-                (*it).cerrar();
-            }
-            Oven o = Oven(pizzaChannel);
+            Oven();
             return ProcessTypeChild;
         }
     }

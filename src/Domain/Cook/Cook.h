@@ -16,13 +16,17 @@
 class Cook {
 public:
     Cook();
+    static string getPizzaFifoName();
 private:
 
     FifoLectura processedOrdersChannel = FifoLectura(Receptionist::getProcessedOrderFifoName());
+    FifoEscritura pizzaChannel = FifoEscritura(Cook::getPizzaFifoName());
 
     void startPollingForOrders();
 
     void cookOrder(string& orderStr);
+
+
 };
 
 

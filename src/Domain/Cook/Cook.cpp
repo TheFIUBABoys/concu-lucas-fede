@@ -11,6 +11,7 @@
 Cook::Cook() {
     Logger::logger().log("Cook waking up");
     processedOrdersChannel.abrir();
+    pizzaChannel.abrir();
     startPollingForOrders();
     Logger::logger().log("Cook dying");
 }
@@ -26,7 +27,9 @@ void Cook::startPollingForOrders() {
             Logger::logger().log(string("Cocinera recibe ") + orderStr);
             cookOrder(orderStr);
         } else {
-            Logger::logger().log("Lei EOF");
+            Logger::logger().log("Cocinera lee EOF");
+            processedOrdersChannel.cerrar();
+            pizzaChannel.cerrar();
             break;
         }
     }
@@ -34,8 +37,12 @@ void Cook::startPollingForOrders() {
 
 void Cook::cookOrder(string &orderStr) {
     ;
-    string processedOrder = string("Cocinera cocina ") + string(orderStr);
+    string processedOrder = string("Cocinera cocina ") + orderStr;
     Logger::logger().log(processedOrder);
-    //Send in other channel
-    //processedOrdersChannel.escribir(processedOrder.c_str(), (int const) processedOrder.size());
+    processedOrder.resize(MESSAGE_LENGTH);
+    pizzaChannel.escribir(orderStr.c_str(), (int const) orderStr.size());
+}
+
+std::string Cook::getPizzaFifoName() {
+    return "PizzaFifo";
 }

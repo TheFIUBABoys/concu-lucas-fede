@@ -25,8 +25,9 @@ void Receptionist::startPollingForOrders() {
             Logger::logger().log(string("Recepcionista recibe ") + string(orderStr));
             processOrder(orderStr);
         } else {
-            Logger::logger().log("Lei EOF");
+            Logger::logger().log("Recepcionista lee EOF");
             processedOrderChannel.cerrar();
+            orderChannel.cerrar();
             break;
         }
     }

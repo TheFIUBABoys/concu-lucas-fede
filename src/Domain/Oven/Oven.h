@@ -10,15 +10,17 @@
 #include "../Pizza/Pizza.h"
 #include "../Order/Order.h"
 #include "../../Util/Pipes/Pipe.h"
+#include "../../Util/Fifos/FifoLectura.h"
+#include "../Cook/Cook.h"
 
 class Oven {
 public:
-    Oven(Pipe& orderChannel);
+    Oven();
     Pizza cookOrder(Order order);
 
     void startWaitingForPizzas();
 private:
-    Pipe pizzaChannel;
+    FifoLectura pizzaChannel = FifoLectura(Cook::getPizzaFifoName());
 
     void cookPizza(string pizza);
 };
