@@ -10,14 +10,15 @@
 #include "../Pizza/Pizza.h"
 #include "../Order/Order.h"
 #include "../../Util/Pipes/Pipe.h"
+#include "../../Util/Fifos/FifoLectura.h"
+#include "../Receptionist/Receptionist.h"
 
 class Cook {
 public:
-    Cook(Pipe orderChannel);
-
-
+    Cook();
 private:
-    Pipe processedOrdersChannel;
+
+    FifoLectura processedOrdersChannel = FifoLectura(Receptionist::getProcessedOrderFifoName());
 
     void startPollingForOrders();
 

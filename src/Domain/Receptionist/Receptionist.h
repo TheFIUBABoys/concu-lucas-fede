@@ -8,21 +8,24 @@
 
 #include "../../Util/Pipes/Pipe.h"
 #include "../../Util/Fifos/FifoLectura.h"
+#include "../../Util/Fifos/FifoEscritura.h"
 #include <string>
 
 
 class Receptionist {
 
 public:
-    Receptionist(Pipe &theProcessedOrdersChannel);
-    static std::string getFifoName();
+    Receptionist();
+    static std::string getOrderFifoName();
+    static std::string getProcessedOrderFifoName();
 private:
-    FifoLectura orderChannel = FifoLectura(Receptionist::getFifoName());;
-    Pipe processedOrdersChannel;
+    FifoLectura orderChannel = FifoLectura(Receptionist::getOrderFifoName());
+    FifoEscritura processedOrderChannel = FifoEscritura(Receptionist::getProcessedOrderFifoName());
 
     void startPollingForOrders();
 
     void processOrder(std::string &orderStr);
+
 };
 
 

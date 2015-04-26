@@ -8,9 +8,9 @@
 #include "../../Config/Config.h"
 
 //Create receptionist in new thread and start polling for orders
-Cook::Cook(Pipe orderChannel) {
+Cook::Cook() {
     Logger::logger().log("Cook waking up");
-    processedOrdersChannel = orderChannel;
+    processedOrdersChannel.abrir();
     startPollingForOrders();
     Logger::logger().log("Cook dying");
 }
@@ -20,10 +20,10 @@ void Cook::startPollingForOrders() {
     char buffer[MESSAGE_LENGTH];;
     while (true) {
         ssize_t bytesLeidos = processedOrdersChannel.leer(buffer, MESSAGE_LENGTH);
-        std::string orderStr = buffer;
-        orderStr.resize(MESSAGE_LENGTH);
-        Logger::logger().log(string("Cocinera recibe ") + orderStr);
         if (bytesLeidos > 0) {
+            std::string orderStr = buffer;
+            orderStr.resize(MESSAGE_LENGTH);
+            Logger::logger().log(string("Cocinera recibe ") + orderStr);
             cookOrder(orderStr);
         } else {
             Logger::logger().log("Lei EOF");
@@ -32,7 +32,8 @@ void Cook::startPollingForOrders() {
     }
 }
 
-void Cook::cookOrder(string &orderStr) { ;
+void Cook::cookOrder(string &orderStr) {
+    ;
     string processedOrder = string("Cocinera cocina ") + string(orderStr);
     Logger::logger().log(processedOrder);
     //Send in other channel

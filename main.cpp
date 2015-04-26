@@ -23,9 +23,9 @@ typedef enum ProcessType {
 
 list<Order> createOrders();
 
-ProcessType createCooks(long amount, Pipe &processedOrdersChannel);
+ProcessType createCooks(long amount);
 
-ProcessType createReceptionists(long amount, Pipe &processedOrdersChannel);
+ProcessType createReceptionists(long amount);
 
 void sendOrder(Pipe &orderChannel, string dato);
 
@@ -56,18 +56,18 @@ int main() {
     list<Order> orders = createOrders();
 
     //Create receptionist processes
-    ProcessType resultReceptionist = createReceptionists(receptionistQuantity, processedOrdersChannel);
+    ProcessType resultReceptionist = createReceptionists(receptionistQuantity);
     if (resultReceptionist == ProcessTypeChild) return 0;
 
     //Create cook processes
-    ProcessType resultCook = createCooks(cookQuantity, processedOrdersChannel);
+    ProcessType resultCook = createCooks(cookQuantity);
     if (resultCook == ProcessTypeChild) {
         return 0;
     }
 
     sleep(2);
 
-    FifoEscritura fifo = FifoEscritura(Receptionist::getFifoName());
+    FifoEscritura fifo = FifoEscritura(Receptionist::getOrderFifoName());
     fifo.abrir();
     for (int i = 0; i < 4; i++) {
         std::string dato = "Orden ";
@@ -111,10 +111,10 @@ int main() {
 }
 
 
-ProcessType createReceptionists(long amount, Pipe &processedOrdersChannel) {
+ProcessType createReceptionists(long amount) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
-            Receptionist r = Receptionist(processedOrdersChannel);
+            Receptionist();
             return ProcessTypeChild;
         }
     }
@@ -122,10 +122,10 @@ ProcessType createReceptionists(long amount, Pipe &processedOrdersChannel) {
     return ProcessTypeFather;
 }
 
-ProcessType createCooks(long amount, Pipe &processedOrdersChannel) {
+ProcessType createCooks(long amount) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
-            Cook c = Cook(processedOrdersChannel);
+            Cook();
             return ProcessTypeChild;
         }
     }
