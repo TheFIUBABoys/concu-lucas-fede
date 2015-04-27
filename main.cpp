@@ -25,7 +25,7 @@ ProcessType createCooks(long amount);
 
 ProcessType createReceptionists(long amount);
 
-ProcessType createCadets(int amount, Pipe &orderChannel);
+ProcessType createCadets(int amount);
 
 ProcessType createSupervisor(Pipe &orderChannel);
 
@@ -58,10 +58,16 @@ int main() {
         return 0;
     }
 
+    //Create oven processes
     ProcessType resultOvens = createOvens(ovenQuantity);
     if (resultOvens == ProcessTypeChild) {
         return 0;
     }
+
+    //Create cadet processes
+    ProcessType resulCadet = createCadets(cadetsQuantity);
+    if (resulCadet == ProcessTypeChild)
+        return 0;
 
     sleep(2);
 
@@ -84,10 +90,6 @@ int main() {
     /*
      * Commemting this out fede, we need to use a different pipe channel for
      * every line on our old diagram.
-    //Create cadet processes
-    ProcessType resulCadet = createCadets(2, channel);
-    if (resulCadet == ProcessTypeChild) return 0;
-
     //Create oven processes
     ProcessType resulOven = createOvens(2, channel);
     if (resulOven == ProcessTypeChild) return 0;
@@ -140,10 +142,10 @@ ProcessType createOvens(long amount) {
     return ProcessTypeFather;
 }
 
-ProcessType createCadets(int amount, Pipe &orderChannel) {
+ProcessType createCadets(int amount) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
-            Cadet c = Cadet(Pipe());
+            Cadet();
             return ProcessTypeChild;
         }
     }

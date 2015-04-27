@@ -18,7 +18,7 @@ Cook::Cook() {
 
 void Cook::startPollingForOrders() {
 
-    char buffer[MESSAGE_LENGTH];;
+    char buffer[MESSAGE_LENGTH];
     while (true) {
         ssize_t bytesLeidos = processedOrdersChannel.leer(buffer, MESSAGE_LENGTH);
         if (bytesLeidos > 0) {
@@ -36,7 +36,6 @@ void Cook::startPollingForOrders() {
 }
 
 void Cook::cookOrder(string &orderStr) {
-    ;
     string processedOrder = string("Cocinera cocina ") + orderStr;
     Logger::logger().log(processedOrder);
     processedOrder.resize(MESSAGE_LENGTH);

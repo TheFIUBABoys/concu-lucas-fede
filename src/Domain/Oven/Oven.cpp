@@ -14,6 +14,7 @@ Pizza Oven::cookOrder(Order order) {
 Oven::Oven() {
     Logger::logger().log("Preheating oven");
     pizzaChannel.abrir();
+    cookedPizzaChannel.abrir();
     startWaitingForPizzas();
     Logger::logger().log("Oven shutting down");
 }
@@ -40,4 +41,5 @@ void Oven::cookPizza(string pizzaStr) {
     uniform_int_distribution<int> distribution(1, 6);
     sleep((unsigned int) distribution(generator));
     Logger::logger().log(string("Termino de cocinar pizza: ") + pizzaStr);
+    cookedPizzaChannel.escribir(pizzaStr.c_str(), (int const) pizzaStr.size());
 }

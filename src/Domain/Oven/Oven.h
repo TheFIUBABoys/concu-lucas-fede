@@ -12,6 +12,7 @@
 #include "../../Util/Pipes/Pipe.h"
 #include "../../Util/Fifos/FifoLectura.h"
 #include "../Cook/Cook.h"
+#include "../Cadet/Cadet.h"
 
 class Oven {
 public:
@@ -21,6 +22,7 @@ public:
     void startWaitingForPizzas();
 private:
     FifoLectura pizzaChannel = FifoLectura(Cook::getPizzaFifoName());
+    FifoEscritura cookedPizzaChannel = FifoEscritura(Cadet::getPizzaCookedFifoName());
 
     void cookPizza(string pizza);
 };
