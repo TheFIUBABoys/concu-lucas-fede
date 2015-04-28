@@ -6,6 +6,6 @@
 #include "../../Util/Logger/Logger.h"
 
 //Create receptionist in new thread and start polling for orders
-Supervisor::Supervisor(Pipe orderChannel) {
+Supervisor::Supervisor() {
     Logger::logger().log("Supervisor waking up");
 }

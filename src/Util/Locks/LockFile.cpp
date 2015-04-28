@@ -22,7 +22,7 @@ int LockFile :: liberarLock () {
 
 ssize_t LockFile :: escribir ( const void* buffer,const ssize_t buffsize ) const {
 	lseek ( this->fd,0,SEEK_END );
-	return write ( this->fd,buffer,buffsize );
+	return write ( this->fd,buffer, buffsize );
 }
 
 LockFile :: ~LockFile () {

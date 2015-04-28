@@ -2,6 +2,7 @@
 // Created by fede on 25/04/15.
 //
 
+#include <random>
 #include "Cadet.h"
 #include "../../Config/Config.h"
 #include "../../Util/Logger/Logger.h"
@@ -9,9 +10,13 @@
 //Create receptionist in new thread and start polling for orders
 Cadet::Cadet() {
     Logger::logger().log("Cadet waking up");
+    payDesk.crear(CONFIG_FILE, 'L');
     cookedPizzaChannel.abrir();
+
     startPollingForOrders();
-    Logger::logger().log("Cadet diying");
+
+    payDesk.liberar();
+    Logger::logger().log("Cadet dying");
 }
 
 void Cadet::startPollingForOrders() {
@@ -32,10 +37,22 @@ void Cadet::startPollingForOrders() {
     }
 }
 
+float Cadet::getPizzaPrice(){
+    return 50.0;
+}
+
 void Cadet::chargePizza(string &orderStr) {
-    Logger::logger().log("Cadeta cobra " + orderStr);
+    Logger::logger().log("Cadeta llevo " + orderStr);
+
+    Logger::logger().log("Cadeta tomo lock " +  to_string(payDeskLock.tomarLock()));
+    float current = payDesk.leer();
+    payDesk.escribir(current + getPizzaPrice());
+    sleep(3); //Para validar que efectivamente se este lockeando
+    payDeskLock.liberarLock();
+    Logger::logger().log("Cadeta cobro " + orderStr + " total caja: " + to_string(current + getPizzaPrice()));
 }
 
 std::string Cadet::getPizzaCookedFifoName() {
     return "PizzaCookedFifo";
 }
+

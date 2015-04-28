@@ -9,7 +9,7 @@
 
 class Supervisor {
 public:
-    Supervisor(Pipe orderChannel);
+    Supervisor();
 };
 
 #endif //CONCUTP_SUPERVISOR_H

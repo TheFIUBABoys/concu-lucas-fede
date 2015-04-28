@@ -25,7 +25,7 @@ ProcessType createCooks(long amount);
 
 ProcessType createReceptionists(long amount);
 
-ProcessType createCadets(int amount);
+ProcessType createCadets(long amount);
 
 ProcessType createSupervisor(Pipe &orderChannel);
 
@@ -142,7 +142,7 @@ ProcessType createOvens(long amount) {
     return ProcessTypeFather;
 }
 
-ProcessType createCadets(int amount) {
+ProcessType createCadets(long amount) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
             Cadet();
@@ -155,7 +155,7 @@ ProcessType createCadets(int amount) {
 
 ProcessType createSupervisor(Pipe &orderChannel) {
     if (!fork()) {
-        Supervisor s = Supervisor(Pipe());
+        Supervisor s = Supervisor();
         return ProcessTypeChild;
     }
 
