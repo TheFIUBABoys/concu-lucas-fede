@@ -23,7 +23,7 @@ typedef enum ProcessType {
 
 ProcessType createCooks(long amount);
 
-ProcessType createReceptionists(long amount);
+ProcessType createReceptionists(long amount, int cookAmount);
 
 ProcessType createCadets(long amount);
 
@@ -49,7 +49,7 @@ int main() {
 
 
     //Create receptionist processes
-    ProcessType resultReceptionist = createReceptionists(receptionistQuantity);
+    ProcessType resultReceptionist = createReceptionists(receptionistQuantity, cookQuantity);
     if (resultReceptionist == ProcessTypeChild) return 0;
 
     //Create cook processes
@@ -65,18 +65,18 @@ int main() {
     }
 
     //Create cadet processes
-    ProcessType resulCadet = createCadets(cadetsQuantity);
-    if (resulCadet == ProcessTypeChild)
+    ProcessType resultCadet = createCadets(cadetsQuantity);
+    if (resultCadet == ProcessTypeChild) {
         return 0;
-
-    sleep(2);
+    }
 
     FifoEscritura fifo = FifoEscritura(Receptionist::getOrderFifoName());
     fifo.abrir();
-    for (int i = 1; i < 5; i++) {
+    for (int i = 0; i < 10; i++) {
         std::string dato = "Orden ";
         dato = dato + to_string(i);
         dato.resize(MESSAGE_LENGTH);
+        sleep(1);
         fifo.escribir(dato.c_str(), (int const) dato.size());
     }
     fifo.cerrar();
@@ -86,31 +86,15 @@ int main() {
         wait(NULL);
     }
 
-
-    /*
-     * Commemting this out fede, we need to use a different pipe channel for
-     * every line on our old diagram.
-    //Create oven processes
-    ProcessType resulOven = createOvens(2, channel);
-    if (resulOven == ProcessTypeChild) return 0;
-
-    //Create Supervisor
-    ProcessType resulSupervisor = createSupervisor(channel);
-    if (resulSupervisor == ProcessTypeChild) return 0;
-
-    sleep(4);
-    std::string dato = "Hola mundo pipes!!";
-    channel.escribir(dato.c_str(), (int const) dato.size());
-     */
     Logger::logger().log("Exiting app");
     return 0;
 }
 
 
-ProcessType createReceptionists(long amount) {
+ProcessType createReceptionists(long amount, int cookAmount) {
     for (int i = 0; i < amount; i++) {
         if (!fork()) {
-            Receptionist();
+            Receptionist r = Receptionist(cookAmount);
             return ProcessTypeChild;
         }
     }
@@ -160,8 +144,4 @@ ProcessType createSupervisor(Pipe &orderChannel) {
     }
 
     return ProcessTypeFather;
-}
-
-list<Order> createOrders() {
-    return {Order()};
 }

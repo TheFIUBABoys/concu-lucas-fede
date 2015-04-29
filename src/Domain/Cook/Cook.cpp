@@ -12,6 +12,7 @@ Cook::Cook() {
     Logger::logger().log("Cook waking up");
     processedOrdersChannel.abrir();
     pizzaChannel.abrir();
+    processedOrderAmount.crear(CONFIG_FILE2, 'L');
     startPollingForOrders();
     Logger::logger().log("Cook dying");
 }
@@ -37,9 +38,17 @@ void Cook::startPollingForOrders() {
 
 void Cook::cookOrder(string &orderStr) {
     string processedOrder = string("Cocinera cocina ") + orderStr;
+    sleep(5); //To test the dropping of orders
     Logger::logger().log(processedOrder);
     processedOrder.resize(MESSAGE_LENGTH);
-    pizzaChannel.escribir(orderStr.c_str(), (int const) orderStr.size());
+    if (int written =pizzaChannel.escribir(orderStr.c_str(), (int const) orderStr.size())!= MESSAGE_LENGTH){
+        Logger::logger().log(string("Error al escribir procesada") + to_string(written));
+        perror("Proccessed pipe");
+    }else {
+        processedOrderAmountLock.tomarLock();
+        processedOrderAmount.escribir(processedOrderAmount.leer() - 1);
+        processedOrderAmountLock.liberarLock();
+    }
 }
 
 std::string Cook::getPizzaFifoName() {

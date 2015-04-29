@@ -7,9 +7,11 @@
 #include "../../Config/Config.h"
 
 
-Receptionist::Receptionist() {
+Receptionist::Receptionist(int cookAmount) {
     Logger::logger().log("Receptionist waking up");
+    this->cookAmount = cookAmount;
     orderChannel.abrir();
+    processedOrderAmount.crear(CONFIG_FILE2, 'L');
     processedOrderChannel.abrir();
     startPollingForOrders();
     Logger::logger().log("Receptionist dying");
@@ -18,8 +20,18 @@ Receptionist::Receptionist() {
 void Receptionist::startPollingForOrders() {
     char buffer[MESSAGE_LENGTH];
     while (true) {
-        ssize_t bytesLeidos = orderChannel.leer(buffer, MESSAGE_LENGTH);
-        if (bytesLeidos > 0) {
+        int uncookedOrderAmount = processedOrderAmount.leer();
+        ssize_t readBytes = orderChannel.leer(buffer, MESSAGE_LENGTH);
+
+        while (uncookedOrderAmount > 2 * cookAmount) {
+            if (readBytes > 0) {
+                Logger::logger().log(string("Recepcionista no atiende ") + buffer);
+            }
+            uncookedOrderAmount = processedOrderAmount.leer();
+            //Ignore orders
+            readBytes = orderChannel.leer(buffer, MESSAGE_LENGTH);
+        }
+        if (readBytes > 0) {
             std::string orderStr = buffer;
             orderStr.resize(MESSAGE_LENGTH);
             Logger::logger().log(string("Recepcionista recibe ") + string(orderStr));
@@ -28,6 +40,7 @@ void Receptionist::startPollingForOrders() {
             Logger::logger().log("Recepcionista lee EOF");
             processedOrderChannel.cerrar();
             orderChannel.cerrar();
+            processedOrderAmount.liberar();
             break;
         }
     }
@@ -41,6 +54,11 @@ void Receptionist::processOrder(string &orderStr) {
     if (int written = processedOrderChannel.escribir(orderStr.c_str(), MESSAGE_LENGTH) != MESSAGE_LENGTH) {
         Logger::logger().log(string("Error al escribir procesada") + to_string(written));
         perror("Proccessed pipe");
+    } else {
+        Logger::logger().log("Cant pedidos tomados: " + to_string(processedOrderAmount.leer()));
+        processedOrderAmountLock.tomarLock();
+        processedOrderAmount.escribir(processedOrderAmount.leer() + 1);
+        processedOrderAmountLock.liberarLock();
     }
 }
 
