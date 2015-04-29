@@ -23,7 +23,7 @@ void Receptionist::startPollingForOrders() {
         int uncookedOrderAmount = processedOrderAmount.leer();
         ssize_t readBytes = orderChannel.leer(buffer, MESSAGE_LENGTH);
 
-        while (uncookedOrderAmount > 2 * cookAmount) {
+        while (uncookedOrderAmount > 2 * cookAmount && readBytes > 0) {
             if (readBytes > 0) {
                 Logger::logger().log(string("Recepcionista no atiende ") + buffer);
             }
