@@ -4,25 +4,34 @@
 
 #ifndef CONCUTP_LOGGER_H
 #define CONCUTP_LOGGER_H
-#define BUFFSIZE 100
-#define LOG_FILE	"/home/fede/ClionProjects/concu-lucas-fede/log.txt"
+
+#include "../Locks/LockFile.h"
+#include "../../Config/Config.h"
+
 
 #include <string>
 
 using namespace std;
+
 class Logger {
 public:
     static Logger &logger() {
+        //remove(LOG_FILE);
         static Logger instance;
         return instance;
     }
+
     void log(string value);
 
-private:
-    Logger();
     bool debug = true;
+private:
+    Logger() { }
+
+    LockFile lock = LockFile(LOG_FILE);
+
     // C++ 11 - Deleting the methods we don't want.
     Logger(Logger const &) = delete;
+
     void operator=(Logger const &) = delete;
 
 };

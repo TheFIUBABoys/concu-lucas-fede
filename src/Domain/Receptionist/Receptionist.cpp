@@ -4,22 +4,31 @@
 
 #include "Receptionist.h"
 #include "../../Util/Logger/Logger.h"
-#include "../../Config/Config.h"
+#include "../../Util/Seniales/SignalHandler.h"
+
+
+#define PROCESSING_DELAY 4
+
 
 
 Receptionist::Receptionist(int cookAmount) {
     Logger::logger().log("Receptionist waking up");
-    this->cookAmount = cookAmount;
-    orderChannel.abrir();
-    processedOrderAmount.crear(CONFIG_FILE2, 'L');
-    processedOrderChannel.abrir();
+    initWithCookAmount(cookAmount);
     startPollingForOrders();
     Logger::logger().log("Receptionist dying");
 }
 
+void Receptionist::initWithCookAmount(int cookAmount) {
+    SignalHandler::getInstance()->registrarHandler ( SIGINT,&sigint_handler);
+    Receptionist::cookAmount = cookAmount;
+    orderChannel.abrir();
+    processedOrderAmount.crear(LOCKFILE_HANDLED_ORDERS, 'L');
+    processedOrderChannel.abrir();
+}
+
 void Receptionist::startPollingForOrders() {
     char buffer[MESSAGE_LENGTH];
-    while (true) {
+    while (!sigint_handler.getGracefulQuit()) {
         int uncookedOrderAmount = processedOrderAmount.leer();
         ssize_t readBytes = orderChannel.leer(buffer, MESSAGE_LENGTH);
 
@@ -38,26 +47,31 @@ void Receptionist::startPollingForOrders() {
             processOrder(orderStr);
         } else {
             Logger::logger().log("Recepcionista lee EOF");
-            processedOrderChannel.cerrar();
-            orderChannel.cerrar();
-            processedOrderAmount.liberar();
             break;
         }
     }
+    //Graceful quit
+    Logger::logger().log("Graceful quit Recepcionista");
+    processedOrderChannel.cerrar();
+    orderChannel.cerrar();
+    processedOrderAmount.liberar();
+    SignalHandler::destruir();
 
 }
 
 void Receptionist::processOrder(string &orderStr) {
     string processedOrder = string("Recepcionista procesa ") + orderStr;
+    sleep(PROCESSING_DELAY);
     Logger::logger().log(processedOrder);
     processedOrder.resize(MESSAGE_LENGTH);
     if (int written = processedOrderChannel.escribir(orderStr.c_str(), MESSAGE_LENGTH) != MESSAGE_LENGTH) {
         Logger::logger().log(string("Error al escribir procesada") + to_string(written));
         perror("Proccessed pipe");
     } else {
-        Logger::logger().log("Cant pedidos tomados: " + to_string(processedOrderAmount.leer()));
+        int takenOrders = processedOrderAmount.leer();
+        Logger::logger().log("Cant pedidos tomados: " + to_string(takenOrders));
         processedOrderAmountLock.tomarLockWr();
-        processedOrderAmount.escribir(processedOrderAmount.leer() + 1);
+        processedOrderAmount.escribir(takenOrders + 1);
         processedOrderAmountLock.liberarLock();
     }
 }

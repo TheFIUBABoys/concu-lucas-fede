@@ -21,7 +21,7 @@ private:
     void startPollingForOrders();
     void chargePizza(string &orderStr);
     MemoriaCompartida<float> payDesk;
-    LockFile payDeskLock = LockFile(CONFIG_FILE);
+    LockFile payDeskLock = LockFile(LOCKFILE_PAYDESK);
     FifoLectura cookedPizzaChannel = FifoLectura(Cadet::getPizzaCookedFifoName());
 
     float getPizzaPrice();

@@ -6,14 +6,10 @@
 #include "src/Domain/Order/Order.h"
 #include "src/Domain/Receptionist/Receptionist.h"
 #include "src/Domain/Cook/Cook.h"
-#include "src/Util/Pipes/Pipe.h"
-#include "src/Config/Config.h"
-#include <sys/types.h>
 #include <sys/wait.h>
 #include "src/Domain/Oven/Oven.h"
-#include "src/Domain/Cadet/Cadet.h"
 #include "src/Domain/Supervisor/Supervisor.h"
-#include "src/Util/Fifos/FifoEscritura.h"
+#include <fstream>
 
 typedef enum ProcessType {
     ProcessTypeFather,
@@ -29,16 +25,21 @@ ProcessType createCadets(long amount);
 
 ProcessType createSupervisor();
 
-ProcessType createOvens(long amount) ;
+ProcessType createOvens(long amount);
+
+void createTempLockfiles();
+
+void deleteTempLockfiles();
 
 using namespace std;
 
 int main() {
-    Logger::logger().log("Launching app...");
+    remove(LOG_FILE);
+
 
     INIReader reader(CONFIG_FILE);
     if (reader.ParseError() < 0) {
-        std::cout << "Can't load 'config_file.ini'\n";
+        std::cout << "Can't load 'config_file.cfg'\n";
         return 1;
     }
 
@@ -46,10 +47,16 @@ int main() {
     long cookQuantity = reader.GetInteger("parameters", "cooks", -1);
     long cadetsQuantity = reader.GetInteger("parameters", "cadets", -1);
     long ovenQuantity = reader.GetInteger("parameters", "ovens", -1);
+    long debug = reader.GetInteger("parameters", "debug", -1);
 
+    if (debug != 0){
+        Logger::logger().debug = true;
+    }
 
+    Logger::logger().log("Launching app...");
+    createTempLockfiles();
     //Create receptionist processes
-    ProcessType resultReceptionist = createReceptionists(receptionistQuantity, cookQuantity);
+    ProcessType resultReceptionist = createReceptionists(receptionistQuantity, (int) cookQuantity);
     if (resultReceptionist == ProcessTypeChild) return 0;
 
     //Create cook processes
@@ -87,12 +94,26 @@ int main() {
     fifo.cerrar();
 
     //Esperar por los hijos
-    for (int i = 0; i < receptionistQuantity + cookQuantity + cadetsQuantity + ovenQuantity; i++) {
+    for (int i = 0; i < receptionistQuantity + cookQuantity + cadetsQuantity + ovenQuantity + 1; i++) {
         wait(NULL);
     }
 
+    deleteTempLockfiles();
     Logger::logger().log("Exiting app");
     return 0;
+}
+
+void deleteTempLockfiles() {
+    remove(LOCKFILE_PAYDESK);
+    remove(LOCKFILE_HANDLED_ORDERS);
+}
+
+void createTempLockfiles() {//Creating temp lock files
+    ofstream myfile;
+    myfile.open(LOCKFILE_PAYDESK);
+    myfile.close();
+    myfile.open(LOCKFILE_HANDLED_ORDERS);
+    myfile.close();
 }
 
 
@@ -117,7 +138,6 @@ ProcessType createCooks(long amount) {
 
     return ProcessTypeFather;
 }
-
 
 
 ProcessType createOvens(long amount) {

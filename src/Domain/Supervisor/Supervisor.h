@@ -7,6 +7,8 @@
 
 #define CHECK_DELAY 5    // s
 
+#define TIMEOUT 5 //Attempts
+
 #include "../../Util/Pipes/Pipe.h"
 #include "../../Util/MemoriaCompartida/MemoriaCompartida.h"
 #include "../../Util/Locks/LockFile.h"
@@ -17,7 +19,7 @@ public:
     Supervisor();
 private:
     MemoriaCompartida<float> payDesk;
-    LockFile payDeskLock = LockFile(CONFIG_FILE);
+    LockFile payDeskLock = LockFile(LOCKFILE_PAYDESK);
     void startCheckingCash();
 };
 

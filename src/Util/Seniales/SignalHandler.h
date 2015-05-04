@@ -9,18 +9,23 @@
 
 class SignalHandler {
 
-	private:
-		static SignalHandler* instance;
-		static EventHandler* signal_handlers [ NSIG ];
+public:
+    static SignalHandler *getInstance();
 
-		SignalHandler ( void );
-		static void dispatcher ( int signum );
+    static void destruir();
 
-	public:
-		static SignalHandler* getInstance ();
-		static void destruir ();
-		EventHandler* registrarHandler ( int signum,EventHandler* eh );
-		int removerHandler ( int signum );
+    EventHandler *registrarHandler(int signum, EventHandler *eh);
+
+    int removerHandler(int signum);
+
+private:
+    static SignalHandler *instance;
+    static EventHandler *signal_handlers[NSIG];
+
+    SignalHandler(void);
+
+    static void dispatcher(int signum);
+
 
 };
 

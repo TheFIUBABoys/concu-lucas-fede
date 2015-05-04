@@ -5,14 +5,16 @@
 #include <unistd.h>
 #include "Cook.h"
 #include "../../Util/Logger/Logger.h"
-#include "../../Config/Config.h"
+
+
+#define COOK_DELAY 5
 
 //Create receptionist in new thread and start polling for orders
 Cook::Cook() {
     Logger::logger().log("Cook waking up");
     processedOrdersChannel.abrir();
     pizzaChannel.abrir();
-    processedOrderAmount.crear(CONFIG_FILE2, 'L');
+    processedOrderAmount.crear(LOCKFILE_HANDLED_ORDERS, 'L');
     startPollingForOrders();
     Logger::logger().log("Cook dying");
 }
@@ -38,7 +40,7 @@ void Cook::startPollingForOrders() {
 
 void Cook::cookOrder(string &orderStr) {
     string processedOrder = string("Cocinera cocina ") + orderStr;
-    sleep(5); //To test the dropping of orders
+    sleep(COOK_DELAY); //To test the dropping of orders
     Logger::logger().log(processedOrder);
     processedOrder.resize(MESSAGE_LENGTH);
     if (int written =pizzaChannel.escribir(orderStr.c_str(), (int const) orderStr.size())!= MESSAGE_LENGTH){

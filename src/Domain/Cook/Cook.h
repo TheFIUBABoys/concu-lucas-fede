@@ -22,7 +22,7 @@ private:
     FifoLectura processedOrdersChannel = FifoLectura(Receptionist::getProcessedOrderFifoName());
     FifoEscritura pizzaChannel = FifoEscritura(Cook::getPizzaFifoName());
     MemoriaCompartida<int> processedOrderAmount;
-    LockFile processedOrderAmountLock = LockFile(CONFIG_FILE2);
+    LockFile processedOrderAmountLock = LockFile(LOCKFILE_HANDLED_ORDERS);
     void startPollingForOrders();
 
     void cookOrder(string& orderStr);

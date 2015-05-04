@@ -12,6 +12,7 @@
 #include "../../Util/MemoriaCompartida/MemoriaCompartida.h"
 #include "../../Util/Locks/LockFile.h"
 #include "../../Config/Config.h"
+#include "../../Util/Seniales/SIGINT_Handler.h"
 
 
 class Receptionist {
@@ -25,11 +26,12 @@ private:
     FifoEscritura processedOrderChannel = FifoEscritura(Receptionist::getProcessedOrderFifoName());
     MemoriaCompartida<int> processedOrderAmount;
     int cookAmount;
-    LockFile processedOrderAmountLock = LockFile(CONFIG_FILE2);
+    LockFile processedOrderAmountLock = LockFile(LOCKFILE_HANDLED_ORDERS);
     void startPollingForOrders();
-
+    SIGINT_Handler sigint_handler;
     void processOrder(std::string &orderStr);
 
+    void initWithCookAmount(int cookAmount);
 };
 
 

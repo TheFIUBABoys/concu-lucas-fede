@@ -6,11 +6,11 @@
 #include "Cadet.h"
 #include "../../Config/Config.h"
 #include "../../Util/Logger/Logger.h"
-
+#define REGISTER_USE_DELAY 3
 //Create receptionist in new thread and start polling for orders
 Cadet::Cadet() {
     Logger::logger().log("Cadet waking up");
-    payDesk.crear(CONFIG_FILE, 'L');
+    payDesk.crear(LOCKFILE_PAYDESK, 'L');
     payDesk.escribir(0.0);
     cookedPizzaChannel.abrir();
 
@@ -44,11 +44,11 @@ float Cadet::getPizzaPrice(){
 
 void Cadet::chargePizza(string &orderStr) {
     Logger::logger().log("Cadeta llevo " + orderStr);
-
-    Logger::logger().log("Cadeta tomo lock " +  to_string(payDeskLock.tomarLockWr()));
+    payDeskLock.tomarLockWr();
     float current = payDesk.leer();
+    Logger::logger().log("Cadeta tomo lock de caja, que tiene $" +  to_string(current));
     payDesk.escribir(current + getPizzaPrice());
-    sleep(3); //Para validar que efectivamente se este lockeando
+    sleep(REGISTER_USE_DELAY); //Para validar que efectivamente se este lockeando
     payDeskLock.liberarLock();
     Logger::logger().log("Cadeta cobro " + orderStr + " total caja: " + to_string(current + getPizzaPrice()));
 }
