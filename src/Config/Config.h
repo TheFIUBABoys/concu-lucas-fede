@@ -7,8 +7,9 @@
 
 #include <string>
 
-#define CONFIG_FILE	"/home/lucas/ClionProjects/concu-lucas-fede/config_file.cfg"
-#define CONFIG_FILE2	"/home/lucas/ClionProjects/concu-lucas-fede/config_file2.cfg"
+#define CONFIG_FILE	"/home/fede/ClionProjects/concu-lucas-fede/config_file.cfg"
+#define CONFIG_FILE2	"/home/fede/ClionProjects/concu-lucas-fede/config_file2.cfg"
 #define MESSAGE_LENGTH 100
 
 #endif //CONCUTP_CONFIG_H
+

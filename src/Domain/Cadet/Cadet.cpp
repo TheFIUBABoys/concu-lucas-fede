@@ -11,6 +11,7 @@
 Cadet::Cadet() {
     Logger::logger().log("Cadet waking up");
     payDesk.crear(CONFIG_FILE, 'L');
+    payDesk.escribir(0.0);
     cookedPizzaChannel.abrir();
 
     startPollingForOrders();
@@ -44,7 +45,7 @@ float Cadet::getPizzaPrice(){
 void Cadet::chargePizza(string &orderStr) {
     Logger::logger().log("Cadeta llevo " + orderStr);
 
-    Logger::logger().log("Cadeta tomo lock " +  to_string(payDeskLock.tomarLock()));
+    Logger::logger().log("Cadeta tomo lock " +  to_string(payDeskLock.tomarLockWr()));
     float current = payDesk.leer();
     payDesk.escribir(current + getPizzaPrice());
     sleep(3); //Para validar que efectivamente se este lockeando

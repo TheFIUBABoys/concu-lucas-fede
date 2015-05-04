@@ -27,7 +27,7 @@ ProcessType createReceptionists(long amount, int cookAmount);
 
 ProcessType createCadets(long amount);
 
-ProcessType createSupervisor(Pipe &orderChannel);
+ProcessType createSupervisor();
 
 ProcessType createOvens(long amount) ;
 
@@ -67,6 +67,11 @@ int main() {
     //Create cadet processes
     ProcessType resultCadet = createCadets(cadetsQuantity);
     if (resultCadet == ProcessTypeChild) {
+        return 0;
+    }
+
+    ProcessType resultSupervisor = createSupervisor();
+    if (resultSupervisor == ProcessTypeChild) {
         return 0;
     }
 
@@ -137,7 +142,7 @@ ProcessType createCadets(long amount) {
     return ProcessTypeFather;
 }
 
-ProcessType createSupervisor(Pipe &orderChannel) {
+ProcessType createSupervisor() {
     if (!fork()) {
         Supervisor s = Supervisor();
         return ProcessTypeChild;

@@ -5,6 +5,7 @@
 #ifndef CONCUTP_LOGGER_H
 #define CONCUTP_LOGGER_H
 #define BUFFSIZE 100
+#define LOG_FILE	"/home/fede/ClionProjects/concu-lucas-fede/log.txt"
 
 #include <string>
 
@@ -18,7 +19,7 @@ public:
     void log(string value);
 
 private:
-    Logger() { };
+    Logger();
     bool debug = true;
     // C++ 11 - Deleting the methods we don't want.
     Logger(Logger const &) = delete;
