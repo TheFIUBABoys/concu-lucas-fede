@@ -56,7 +56,7 @@ void Receptionist::processOrder(string &orderStr) {
         perror("Proccessed pipe");
     } else {
         Logger::logger().log("Cant pedidos tomados: " + to_string(processedOrderAmount.leer()));
-        processedOrderAmountLock.tomarLock();
+        processedOrderAmountLock.tomarLockWr();
         processedOrderAmount.escribir(processedOrderAmount.leer() + 1);
         processedOrderAmountLock.liberarLock();
     }

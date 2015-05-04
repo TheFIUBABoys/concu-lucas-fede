@@ -45,7 +45,7 @@ void Cook::cookOrder(string &orderStr) {
         Logger::logger().log(string("Error al escribir procesada") + to_string(written));
         perror("Proccessed pipe");
     }else {
-        processedOrderAmountLock.tomarLock();
+        processedOrderAmountLock.tomarLockWr();
         processedOrderAmount.escribir(processedOrderAmount.leer() - 1);
         processedOrderAmountLock.liberarLock();
     }

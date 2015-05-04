@@ -23,7 +23,7 @@ void Logger::log(string value) {
     }
 
     LockFile lock ( LOG_FILE );
-    lock.tomarLock();
+    lock.tomarLockWr();
     lock.escribir(static_cast<const void *>(toPrint), strlen(toPrint));
     lock.liberarLock();
 }
