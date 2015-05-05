@@ -6,6 +6,7 @@
 #include "Oven.h"
 #include "../../Util/Logger/Logger.h"
 #include "../../Config/Config.h"
+#include "../../Util/Seniales/SignalHandler.h"
 
 Pizza Oven::cookOrder(Order order) {
     return Pizza();
@@ -21,7 +22,7 @@ Oven::Oven() {
 
 void Oven::startWaitingForPizzas() {
     char buffer[MESSAGE_LENGTH];;
-    while (true) {
+    while (!sigint_handler.getGracefulQuit()) {
         ssize_t bytesLeidos = pizzaChannel.leer(buffer, MESSAGE_LENGTH);
         string pizzaStr = buffer;
         pizzaStr.resize(MESSAGE_LENGTH);
@@ -33,6 +34,11 @@ void Oven::startWaitingForPizzas() {
             break;
         }
     }
+    //Graceful quit
+    Logger::logger().log("Graceful quit Oven");
+    pizzaChannel.cerrar();
+    cookedPizzaChannel.cerrar();
+    SignalHandler::destruir();
 }
 
 void Oven::cookPizza(string pizzaStr) {

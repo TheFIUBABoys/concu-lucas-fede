@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "Cook.h"
 #include "../../Util/Logger/Logger.h"
+#include "../../Util/Seniales/SignalHandler.h"
 
 
 #define COOK_DELAY 5
@@ -22,7 +23,7 @@ Cook::Cook() {
 void Cook::startPollingForOrders() {
 
     char buffer[MESSAGE_LENGTH];
-    while (true) {
+    while (!sigint_handler.getGracefulQuit()) {
         ssize_t bytesLeidos = processedOrdersChannel.leer(buffer, MESSAGE_LENGTH);
         if (bytesLeidos > 0) {
             std::string orderStr = buffer;
@@ -36,6 +37,12 @@ void Cook::startPollingForOrders() {
             break;
         }
     }
+    //Graceful quit
+    Logger::logger().log("Graceful quit Cook");
+    processedOrdersChannel.cerrar();
+    pizzaChannel.cerrar();
+    processedOrderAmount.liberar();
+    SignalHandler::destruir();
 }
 
 void Cook::cookOrder(string &orderStr) {

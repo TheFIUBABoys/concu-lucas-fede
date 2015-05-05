@@ -24,6 +24,8 @@ private:
     FifoLectura pizzaChannel = FifoLectura(Cook::getPizzaFifoName());
     FifoEscritura cookedPizzaChannel = FifoEscritura(Cadet::getPizzaCookedFifoName());
 
+    SIGINT_Handler sigint_handler;
+
     void cookPizza(string pizza);
 };
 

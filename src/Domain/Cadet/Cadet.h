@@ -24,6 +24,8 @@ private:
     LockFile payDeskLock = LockFile(LOCKFILE_PAYDESK);
     FifoLectura cookedPizzaChannel = FifoLectura(Cadet::getPizzaCookedFifoName());
 
+    SIGINT_Handler sigint_handler;
+
     float getPizzaPrice();
 };
 

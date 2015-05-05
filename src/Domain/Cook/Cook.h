@@ -25,6 +25,8 @@ private:
     LockFile processedOrderAmountLock = LockFile(LOCKFILE_HANDLED_ORDERS);
     void startPollingForOrders();
 
+    SIGINT_Handler sigint_handler;
+
     void cookOrder(string& orderStr);
 
 

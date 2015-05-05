@@ -6,6 +6,8 @@
 #include "Cadet.h"
 #include "../../Config/Config.h"
 #include "../../Util/Logger/Logger.h"
+#include "../../Util/Seniales/SignalHandler.h"
+
 #define REGISTER_USE_DELAY 3
 //Create receptionist in new thread and start polling for orders
 Cadet::Cadet() {
@@ -23,7 +25,7 @@ Cadet::Cadet() {
 void Cadet::startPollingForOrders() {
 
     char buffer[MESSAGE_LENGTH];
-    while (true) {
+    while (!sigint_handler.getGracefulQuit()) {
         ssize_t bytesLeidos = cookedPizzaChannel.leer(buffer, MESSAGE_LENGTH);
         if (bytesLeidos > 0) {
             std::string orderStr = buffer;
@@ -36,6 +38,11 @@ void Cadet::startPollingForOrders() {
             break;
         }
     }
+    //Graceful quit
+    Logger::logger().log("Graceful quit Cadet");
+    cookedPizzaChannel.cerrar();
+    payDesk.liberar();
+    SignalHandler::destruir();
 }
 
 float Cadet::getPizzaPrice(){

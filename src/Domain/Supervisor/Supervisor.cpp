@@ -5,6 +5,7 @@
 #include <iostream>
 #include "Supervisor.h"
 #include "../../Util/Logger/Logger.h"
+#include "../../Util/Seniales/SignalHandler.h"
 
 //Create receptionist in new thread and start polling for orders
 Supervisor::Supervisor() {
@@ -21,7 +22,7 @@ Supervisor::Supervisor() {
 
 void Supervisor::startCheckingCash() {
     float previous = -100, i=0;
-    while(true) {
+    while(!sigint_handler.getGracefulQuit()) {
         sleep(CHECK_DELAY);
         payDeskLock.tomarLockWr();
         Logger::logger().log("Supervisor tomo lock de caja");
@@ -37,4 +38,8 @@ void Supervisor::startCheckingCash() {
         if (i>=TIMEOUT) break; //Timeout
         previous = current;
     }
+    //Graceful quit
+    Logger::logger().log("Graceful quit Supervisor");
+    payDesk.liberar();
+    SignalHandler::destruir();
 }
