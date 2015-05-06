@@ -47,10 +47,13 @@ void Cook::startPollingForOrders() {
 
 void Cook::cookOrder(string &orderStr) {
     string processedOrder = string("Cocinera cocina ") + orderStr;
-    sleep(COOK_DELAY); //To test the dropping of orders
     Logger::logger().log(processedOrder);
+    sleep(COOK_DELAY); // Cook
+    freeOvenSemaphore.p(); //Wait for free oven
+    Logger::logger().log(string("Cocinera encontro horno libre para orden: ")+ orderStr);
+
     processedOrder.resize(MESSAGE_LENGTH);
-    if (int written =pizzaChannel.escribir(orderStr.c_str(), (int const) orderStr.size())!= MESSAGE_LENGTH){
+    if (int written = pizzaChannel.escribir(orderStr.c_str(), (int const) orderStr.size())!= MESSAGE_LENGTH){
         Logger::logger().log(string("Error al escribir procesada") + to_string(written));
         perror("Proccessed pipe");
     }else {

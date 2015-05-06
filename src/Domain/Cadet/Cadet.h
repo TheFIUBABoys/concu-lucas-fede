@@ -25,8 +25,10 @@ private:
     FifoLectura cookedPizzaChannel = FifoLectura(Cadet::getPizzaCookedFifoName());
 
     SIGINT_Handler sigint_handler;
-
+    Semaforo freeOvenSemaphore = Semaforo("Oven");
     float getPizzaPrice();
+
+    string takePizzaFromOven(char buffer[]);
 };
 
 #endif //CONCUTP_CADET_H

@@ -12,6 +12,7 @@
 #include "../../Util/Pipes/Pipe.h"
 #include "../../Util/Fifos/FifoLectura.h"
 #include "../Receptionist/Receptionist.h"
+#include "../../Util/Semaforo/Semaforo.h"
 
 class Cook {
 public:
@@ -28,6 +29,8 @@ private:
     SIGINT_Handler sigint_handler;
 
     void cookOrder(string& orderStr);
+
+    Semaforo freeOvenSemaphore = Semaforo("Oven");
 
 
 };

@@ -16,6 +16,7 @@ Oven::Oven() {
     Logger::logger().log("Preheating oven");
     pizzaChannel.abrir();
     cookedPizzaChannel.abrir();
+    freeOvenSemaphore.v();
     startWaitingForPizzas();
     Logger::logger().log("Oven shutting down");
 }
@@ -42,10 +43,10 @@ void Oven::startWaitingForPizzas() {
 }
 
 void Oven::cookPizza(string pizzaStr) {
-    Logger::logger().log(string("Cocinando pizza: ") + pizzaStr);
+    Logger::logger().log(string("Horno cocinando pizza: ") + pizzaStr);
     default_random_engine generator;
     uniform_int_distribution<int> distribution(1, 6);
-    sleep((unsigned int) distribution(generator));
-    Logger::logger().log(string("Termino de cocinar pizza: ") + pizzaStr);
+    sleep(10);
+    Logger::logger().log(string("Horno termino de cocinar pizza: ") + pizzaStr);
     cookedPizzaChannel.escribir(pizzaStr.c_str(), (int const) pizzaStr.size());
 }

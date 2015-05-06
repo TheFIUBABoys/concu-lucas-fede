@@ -55,9 +55,13 @@ int main() {
 
     Logger::logger().log("Launching app...");
     createTempLockfiles();
+
     //Create receptionist processes
     ProcessType resultReceptionist = createReceptionists(receptionistQuantity, (int) cookQuantity);
     if (resultReceptionist == ProcessTypeChild) return 0;
+
+
+    Semaforo freeOvenSemaphore = Semaforo("Oven", 0);
 
     //Create cook processes
     ProcessType resultCook = createCooks(cookQuantity);
@@ -99,6 +103,7 @@ int main() {
     }
 
     deleteTempLockfiles();
+    freeOvenSemaphore.eliminar();
     Logger::logger().log("Exiting app");
     return 0;
 }
@@ -106,6 +111,8 @@ int main() {
 void deleteTempLockfiles() {
     remove(LOCKFILE_PAYDESK);
     remove(LOCKFILE_HANDLED_ORDERS);
+
+    //TODO - Delete all fifos and semaphores
 }
 
 void createTempLockfiles() {//Creating temp lock files

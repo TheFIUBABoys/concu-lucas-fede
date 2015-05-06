@@ -28,9 +28,7 @@ void Cadet::startPollingForOrders() {
     while (!sigint_handler.getGracefulQuit()) {
         ssize_t bytesLeidos = cookedPizzaChannel.leer(buffer, MESSAGE_LENGTH);
         if (bytesLeidos > 0) {
-            std::string orderStr = buffer;
-            orderStr.resize(MESSAGE_LENGTH);
-            Logger::logger().log(string("Cadeta recibe ") + orderStr);
+            string orderStr = takePizzaFromOven(buffer);
             chargePizza(orderStr);
         } else {
             Logger::logger().log("Cadeta lee EOF");
@@ -43,6 +41,14 @@ void Cadet::startPollingForOrders() {
     cookedPizzaChannel.cerrar();
     payDesk.liberar();
     SignalHandler::destruir();
+}
+
+string Cadet::takePizzaFromOven(char buffer[]) {
+    string orderStr = buffer;
+    orderStr.resize(MESSAGE_LENGTH);
+    Logger::logger().log(string("Cadeta recibe ") + orderStr);
+    freeOvenSemaphore.v(); //Signal there's an available oven
+    return orderStr;
 }
 
 float Cadet::getPizzaPrice(){

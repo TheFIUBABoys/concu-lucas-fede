@@ -13,6 +13,7 @@
 #include "../../Util/Fifos/FifoLectura.h"
 #include "../Cook/Cook.h"
 #include "../Cadet/Cadet.h"
+#include "../../Util/Semaforo/Semaforo.h"
 
 class Oven {
 public:
@@ -25,7 +26,7 @@ private:
     FifoEscritura cookedPizzaChannel = FifoEscritura(Cadet::getPizzaCookedFifoName());
 
     SIGINT_Handler sigint_handler;
-
+    Semaforo freeOvenSemaphore = Semaforo("Oven");
     void cookPizza(string pizza);
 };
 
