@@ -31,11 +31,29 @@ void createTempLockfiles();
 
 void deleteTempLockfiles();
 
+void cleanup();
+
 using namespace std;
+
+vector<__pid_t> spawnedProcesses;
+int mainpid;
+
+void signalCallback(int signum){
+    if (signum==SIGINT && getpid() == mainpid) {
+        Logger::logger().log("Received signal " + to_string(signum));
+        for (int i = 0; i < spawnedProcesses.size(); i++) {
+            Logger::logger().log("Killing child pid: " + to_string(spawnedProcesses[i]));
+
+            kill(spawnedProcesses[i], signum);
+        }
+
+        cleanup();
+    }
+}
 
 int main() {
     remove(LOG_FILE);
-
+    signal(SIGINT, signalCallback);
 
     INIReader reader(CONFIG_FILE);
     if (reader.ParseError() < 0) {
@@ -43,13 +61,15 @@ int main() {
         return 1;
     }
 
+    mainpid = getpid();
+
     long receptionistQuantity = reader.GetInteger("parameters", "receptionists", -1);
     long cookQuantity = reader.GetInteger("parameters", "cooks", -1);
     long cadetsQuantity = reader.GetInteger("parameters", "cadets", -1);
     long ovenQuantity = reader.GetInteger("parameters", "ovens", -1);
     long debug = reader.GetInteger("parameters", "debug", -1);
 
-    if (debug != 0){
+    if (debug != 0) {
         Logger::logger().debug = true;
     }
 
@@ -61,7 +81,8 @@ int main() {
     if (resultReceptionist == ProcessTypeChild) return 0;
 
 
-    Semaforo freeOvenSemaphore = Semaforo("Oven", 0);
+    //Init semaphore
+    Semaforo(SEMAPHORE_NAME, 0);
 
     //Create cook processes
     ProcessType resultCook = createCooks(cookQuantity);
@@ -102,17 +123,23 @@ int main() {
         wait(NULL);
     }
 
-    deleteTempLockfiles();
-    freeOvenSemaphore.eliminar();
-    Logger::logger().log("Exiting app");
+    cleanup();
+
     return 0;
+}
+
+void cleanup() {
+    deleteTempLockfiles();
+    Semaforo(SEMAPHORE_NAME).eliminar();
+    FifoEscritura(Receptionist::getOrderFifoName()).eliminar();
+    FifoEscritura(Cook::getPizzaFifoName()).eliminar();
+    FifoEscritura(Cadet::getPizzaCookedFifoName()).eliminar();
+    Logger::logger().log("Exiting app");
 }
 
 void deleteTempLockfiles() {
     remove(LOCKFILE_PAYDESK);
     remove(LOCKFILE_HANDLED_ORDERS);
-
-    //TODO - Delete all fifos and semaphores
 }
 
 void createTempLockfiles() {//Creating temp lock files
@@ -126,9 +153,12 @@ void createTempLockfiles() {//Creating temp lock files
 
 ProcessType createReceptionists(long amount, int cookAmount) {
     for (int i = 0; i < amount; i++) {
-        if (!fork()) {
+        __pid_t pid = fork();
+        if (!pid) {
             Receptionist r = Receptionist(cookAmount);
             return ProcessTypeChild;
+        } else {
+            spawnedProcesses.push_back(pid);
         }
     }
 
@@ -137,9 +167,12 @@ ProcessType createReceptionists(long amount, int cookAmount) {
 
 ProcessType createCooks(long amount) {
     for (int i = 0; i < amount; i++) {
-        if (!fork()) {
+        __pid_t pid = fork();
+        if (!pid) {
             Cook();
             return ProcessTypeChild;
+        } else {
+            spawnedProcesses.push_back(pid);
         }
     }
 
@@ -149,9 +182,12 @@ ProcessType createCooks(long amount) {
 
 ProcessType createOvens(long amount) {
     for (int i = 0; i < amount; i++) {
-        if (!fork()) {
+        __pid_t pid = fork();
+        if (!pid) {
             Oven();
             return ProcessTypeChild;
+        } else {
+            spawnedProcesses.push_back(pid);
         }
     }
 
@@ -160,9 +196,12 @@ ProcessType createOvens(long amount) {
 
 ProcessType createCadets(long amount) {
     for (int i = 0; i < amount; i++) {
-        if (!fork()) {
+        __pid_t pid = fork();
+        if (!pid) {
             Cadet();
             return ProcessTypeChild;
+        } else {
+            spawnedProcesses.push_back(pid);
         }
     }
 
@@ -170,9 +209,12 @@ ProcessType createCadets(long amount) {
 }
 
 ProcessType createSupervisor() {
-    if (!fork()) {
+    __pid_t pid = fork();
+    if (!pid) {
         Supervisor s = Supervisor();
         return ProcessTypeChild;
+    } else {
+        spawnedProcesses.push_back(pid);
     }
 
     return ProcessTypeFather;

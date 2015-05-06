@@ -8,12 +8,9 @@
 #include "../../Config/Config.h"
 #include "../../Util/Seniales/SignalHandler.h"
 
-Pizza Oven::cookOrder(Order order) {
-    return Pizza();
-}
-
 Oven::Oven() {
     Logger::logger().log("Preheating oven");
+    SignalHandler::getInstance()->registrarHandler ( SIGINT,&sigint_handler);
     pizzaChannel.abrir();
     cookedPizzaChannel.abrir();
     freeOvenSemaphore.v();
@@ -42,11 +39,12 @@ void Oven::startWaitingForPizzas() {
     SignalHandler::destruir();
 }
 
+
 void Oven::cookPizza(string pizzaStr) {
     Logger::logger().log(string("Horno cocinando pizza: ") + pizzaStr);
     default_random_engine generator;
     uniform_int_distribution<int> distribution(1, 6);
-    sleep(10);
+    sleep((unsigned int) distribution(generator));
     Logger::logger().log(string("Horno termino de cocinar pizza: ") + pizzaStr);
     cookedPizzaChannel.escribir(pizzaStr.c_str(), (int const) pizzaStr.size());
 }

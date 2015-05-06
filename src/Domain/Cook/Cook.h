@@ -7,7 +7,6 @@
 
 
 #include <string>
-#include "../Pizza/Pizza.h"
 #include "../Order/Order.h"
 #include "../../Util/Pipes/Pipe.h"
 #include "../../Util/Fifos/FifoLectura.h"
@@ -30,7 +29,7 @@ private:
 
     void cookOrder(string& orderStr);
 
-    Semaforo freeOvenSemaphore = Semaforo("Oven");
+    Semaforo freeOvenSemaphore = Semaforo(SEMAPHORE_NAME);
 
 
 };

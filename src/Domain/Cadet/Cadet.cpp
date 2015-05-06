@@ -12,6 +12,7 @@
 //Create receptionist in new thread and start polling for orders
 Cadet::Cadet() {
     Logger::logger().log("Cadet waking up");
+    SignalHandler::getInstance()->registrarHandler ( SIGINT,&sigint_handler);
     payDesk.crear(LOCKFILE_PAYDESK, 'L');
     payDesk.escribir(0.0);
     cookedPizzaChannel.abrir();

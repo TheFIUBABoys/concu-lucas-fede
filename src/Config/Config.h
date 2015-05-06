@@ -12,6 +12,6 @@
 #define LOCKFILE_HANDLED_ORDERS    "/tmp/concu-lucas-fede-orders.lock"
 #define LOG_FILE    "/home/lucas/ClionProjects/concu-lucas-fede/log.txt"
 #define MESSAGE_LENGTH 100
-
+#define SEMAPHORE_NAME "Oven"
 #endif //CONCUTP_CONFIG_H
 
