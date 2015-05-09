@@ -130,6 +130,7 @@ int main() {
 }
 
 void cleanup() {
+    Logger::logger().log("Cleaning up resources");
     deleteTempLockfiles();
     Semaforo(SEMAPHORE_NAME).eliminar();
     FifoEscritura(Receptionist::getOrderFifoName()).eliminar();

@@ -27,7 +27,6 @@ Cadet::Cadet() : Process() {
 }
 
 void Cadet::startPollingForOrders() {
-
     char buffer[MESSAGE_LENGTH];
     while (!sigint_handler.getGracefulQuit()) {
         ssize_t bytesLeidos = cookedPizzaChannel.leer(buffer, MESSAGE_LENGTH);
