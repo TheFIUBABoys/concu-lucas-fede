@@ -15,7 +15,11 @@ Cook::Cook() : Process() {
     Logger::logger().log("Cook waking up");
     processedOrdersChannel.abrir();
     pizzaChannel.abrir();
-    processedOrderAmount.crear(LOCKFILE_HANDLED_ORDERS, 'L');
+    if (processedOrderAmount.crear(LOCKFILE_HANDLED_ORDERS, 'L') != SHM_OK) {
+        string error = "Error creando caja de memoria compartida";
+        perror(error.c_str());
+        Logger::logger().log(error);
+    }
     startPollingForOrders();
     Logger::logger().log("Cook dying");
 }
@@ -49,14 +53,19 @@ void Cook::cookOrder(string &orderStr) {
     string processedOrder = string("Cocinera cocina ") + orderStr;
     Logger::logger().log(processedOrder);
     sleep(COOK_DELAY); // Cook
-    freeOvenSemaphore.p(); //Wait for free oven
-    Logger::logger().log(string("Cocinera encontro horno libre para orden: ")+ orderStr);
+    //Wait for free oven
+    if (freeOvenSemaphore.p() < 0) {
+        string err = "Error decrementando semaforo";
+        perror(err.c_str());
+        Logger::logger().log(err);
+    }
+    Logger::logger().log(string("Cocinera encontro horno libre para orden: ") + orderStr);
 
     processedOrder.resize(MESSAGE_LENGTH);
-    if (int written = pizzaChannel.escribir(orderStr.c_str(), (int const) orderStr.size())!= MESSAGE_LENGTH){
+    if (int written = pizzaChannel.escribir(orderStr.c_str(), (int const) orderStr.size()) != MESSAGE_LENGTH) {
         Logger::logger().log(string("Error al escribir procesada") + to_string(written));
         perror("Proccessed pipe");
-    }else {
+    } else {
         processedOrderAmountLock.tomarLockWr();
         processedOrderAmount.escribir(processedOrderAmount.leer() - 1);
         processedOrderAmountLock.liberarLock();

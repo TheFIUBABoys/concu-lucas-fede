@@ -12,7 +12,11 @@
 //Create receptionist in new thread and start polling for orders
 Cadet::Cadet() : Process() {
     Logger::logger().log("Cadet waking up");
-    payDesk.crear(LOCKFILE_PAYDESK, 'L');
+    if (payDesk.crear(LOCKFILE_PAYDESK, 'L')!=SHM_OK){
+        string error = "Error creando caja de memoria compartida";
+        perror(error.c_str());
+        Logger::logger().log(error);
+    }
     payDesk.escribir(0.0);
     cookedPizzaChannel.abrir();
 
@@ -47,7 +51,14 @@ string Cadet::takePizzaFromOven(char buffer[]) {
     string orderStr = buffer;
     orderStr.resize(MESSAGE_LENGTH);
     Logger::logger().log(string("Cadeta recibe ") + orderStr);
-    freeOvenSemaphore.v(); //Signal there's an available oven
+
+    //Signal there's an available oven
+    if (freeOvenSemaphore.v() < 0) {
+        string err = "Error incrementando semaforo";
+        perror(err.c_str());
+        Logger::logger().log(err);
+    }
+
     return orderStr;
 }
 

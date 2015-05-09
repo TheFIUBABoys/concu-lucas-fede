@@ -11,7 +11,11 @@
 Supervisor::Supervisor() : Process() {
     Logger::logger().log("Supervisor waking up");
 
-    payDesk.crear(LOCKFILE_PAYDESK, 'L');
+    if (payDesk.crear(LOCKFILE_PAYDESK, 'L')!=SHM_OK){
+        string error = "Error creando caja de memoria compartida";
+        perror(error.c_str());
+        Logger::logger().log(error);
+    }
 
     startCheckingCash();
 

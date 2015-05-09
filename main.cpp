@@ -48,6 +48,7 @@ void signalCallback(int signum){
         }
 
         cleanup();
+        exit(0);
     }
 }
 

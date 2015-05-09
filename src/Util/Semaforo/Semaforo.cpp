@@ -3,7 +3,9 @@
 Semaforo::Semaforo(const std::string &nombre, const int valorInicial) : valorInicial(valorInicial) {
     key_t clave = ftok(nombre.c_str(), 'a');
     this->id = semget(clave, 1, 0666 | IPC_CREAT);
-
+    if (id<0){
+        perror("Error creando semaforo");
+    }
     this->inicializar();
 }
 
@@ -11,6 +13,9 @@ Semaforo::Semaforo(const std::string &nombre) {
     //Don't initialize
     key_t clave = ftok(nombre.c_str(), 'a');
     this->id = semget(clave, 1, 0666 | IPC_CREAT);
+    if (id<0){
+        perror("Error creando semaforo");
+    }
 }
 
 

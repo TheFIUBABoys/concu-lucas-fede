@@ -21,7 +21,11 @@ Receptionist::Receptionist(int cookAmount) : Process() {
 void Receptionist::initWithCookAmount(int cookAmount){
     Receptionist::cookAmount = cookAmount;
     orderChannel.abrir();
-    processedOrderAmount.crear(LOCKFILE_HANDLED_ORDERS, 'L');
+    if (processedOrderAmount.crear(LOCKFILE_HANDLED_ORDERS, 'L')!=SHM_OK){
+        string error = "Error creando caja de memoria compartida";
+        perror(error.c_str());
+        Logger::logger().log(error);
+    }
     processedOrderChannel.abrir();
 }
 

@@ -8,6 +8,9 @@ FifoLectura::~FifoLectura() {
 
 void FifoLectura::abrir() {
     fd = open(nombre.c_str(), O_RDONLY);
+    if (fd < 0){
+        perror("Error abriendo fifo escritura");
+    }
 }
 
 ssize_t FifoLectura::leer(void *buffer, const ssize_t buffsize) const {

@@ -5,7 +5,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(SOURCE_FILES main.cpp)
 set(FIFOS src/Util/Fifos/Fifo.cpp src/Util/Fifos/Fifo.h src/Util/Fifos/FifoEscritura.cpp src/Util/Fifos/FifoEscritura.h src/Util/Fifos/FifoLectura.cpp src/Util/Fifos/FifoLectura.h)
-set(SHARED_MEMORY src/Util/MemoriaCompartida/MemoriaCompartida.h src/Util/MemoriaCompartida/MemoriaCompartida2.h)
+set(SHARED_MEMORY src/Util/MemoriaCompartida/MemoriaCompartida.h)
 set(LOCK_FILE src/Util/Locks/LockFile.h src/Util/Locks/LockFile.cpp)
 set(SEMAPHORE src/Util/Semaforo/Semaforo.h src/Util/Semaforo/Semaforo.cpp)
 set(SIGNALS src/Util/Seniales/EventHandler.h src/Util/Seniales/SIGINT_Handler.h src/Util/Seniales/SignalHandler.cpp src/Util/Seniales/SignalHandler.h)

@@ -8,6 +8,9 @@ LockFile::LockFile(const std::string nombre) {
     this->fl.l_start = 0;
     this->fl.l_len = 0;
     this->fd = open(this->nombre.c_str(), O_CREAT | O_RDWR, 0777);
+    if (this->fd < 0){
+        perror("Error abriendo fd para lock");
+    }
 }
 
 int LockFile::tomarLockWr() {
