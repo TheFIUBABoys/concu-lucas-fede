@@ -53,22 +53,24 @@ void Cook::cookOrder(string &orderStr) {
     string processedOrder = string("Cocinera cocina ") + orderStr;
     Logger::logger().log(processedOrder);
     sleep(COOK_DELAY); // Cook
-    //Wait for free oven
-    if (freeOvenSemaphore.p() < 0) {
-        string err = "Error decrementando semaforo";
-        perror(err.c_str());
-        Logger::logger().log(err);
-    }
-    Logger::logger().log(string("Cocinera encontro horno libre para orden: ") + orderStr);
+    if (!sigint_handler.getGracefulQuit()) {
+        //Wait for free oven
+        if (freeOvenSemaphore.p() < 0) {
+            string err = "Error decrementando semaforo";
+            perror(err.c_str());
+            Logger::logger().log(err);
+        }
+        Logger::logger().log(string("Cocinera encontro horno libre para orden: ") + orderStr);
 
-    processedOrder.resize(MESSAGE_LENGTH);
-    if (int written = pizzaChannel.escribir(orderStr.c_str(), (int const) orderStr.size()) != MESSAGE_LENGTH) {
-        Logger::logger().log(string("Error al escribir procesada") + to_string(written));
-        perror("Proccessed pipe");
-    } else {
-        processedOrderAmountLock.tomarLockWr();
-        processedOrderAmount.escribir(processedOrderAmount.leer() - 1);
-        processedOrderAmountLock.liberarLock();
+        processedOrder.resize(MESSAGE_LENGTH);
+        if (int written = pizzaChannel.escribir(orderStr.c_str(), (int const) orderStr.size()) != MESSAGE_LENGTH) {
+            Logger::logger().log(string("Error al escribir procesada") + to_string(written));
+            perror("Proccessed pipe");
+        } else {
+            processedOrderAmountLock.tomarLockWr();
+            processedOrderAmount.escribir(processedOrderAmount.leer() - 1);
+            processedOrderAmountLock.liberarLock();
+        }
     }
 }
 

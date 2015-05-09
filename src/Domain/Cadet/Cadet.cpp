@@ -51,13 +51,14 @@ string Cadet::takePizzaFromOven(char buffer[]) {
     orderStr.resize(MESSAGE_LENGTH);
     Logger::logger().log(string("Cadeta recibe ") + orderStr);
 
-    //Signal there's an available oven
-    if (freeOvenSemaphore.v() < 0) {
-        string err = "Error incrementando semaforo";
-        perror(err.c_str());
-        Logger::logger().log(err);
+    if (!sigint_handler.getGracefulQuit()) {
+        //Signal there's an available oven
+        if (freeOvenSemaphore.v() < 0) {
+            string err = "Error incrementando semaforo";
+            perror(err.c_str());
+            Logger::logger().log(err);
+        }
     }
-
     return orderStr;
 }
 

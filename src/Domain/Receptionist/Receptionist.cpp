@@ -67,15 +67,17 @@ void Receptionist::processOrder(string &orderStr) {
     sleep(PROCESSING_DELAY);
     Logger::logger().log(processedOrder);
     processedOrder.resize(MESSAGE_LENGTH);
-    if (int written = processedOrderChannel.escribir(orderStr.c_str(), MESSAGE_LENGTH) != MESSAGE_LENGTH) {
-        Logger::logger().log(string("Error al escribir procesada") + to_string(written));
-        perror("Proccessed pipe");
-    } else {
-        int takenOrders = processedOrderAmount.leer();
-        Logger::logger().log("Cant pedidos tomados: " + to_string(takenOrders));
-        processedOrderAmountLock.tomarLockWr();
-        processedOrderAmount.escribir(takenOrders + 1);
-        processedOrderAmountLock.liberarLock();
+    if (!sigint_handler.getGracefulQuit()) {
+        if (int written = processedOrderChannel.escribir(orderStr.c_str(), MESSAGE_LENGTH) != MESSAGE_LENGTH) {
+            Logger::logger().log(string("Error al escribir procesada") + to_string(written));
+            perror("Proccessed pipe");
+        } else {
+            int takenOrders = processedOrderAmount.leer();
+            Logger::logger().log("Cant pedidos tomados: " + to_string(takenOrders));
+            processedOrderAmountLock.tomarLockWr();
+            processedOrderAmount.escribir(takenOrders + 1);
+            processedOrderAmountLock.liberarLock();
+        }
     }
 }
 

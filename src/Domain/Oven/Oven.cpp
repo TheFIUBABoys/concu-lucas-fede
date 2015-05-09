@@ -45,5 +45,10 @@ void Oven::cookPizza(string pizzaStr) {
     uniform_int_distribution<int> distribution(1, 6);
     sleep((unsigned int) distribution(generator));
     Logger::logger().log(string("Horno termino de cocinar pizza: ") + pizzaStr);
-    cookedPizzaChannel.escribir(pizzaStr.c_str(), (int const) pizzaStr.size());
+    if (!sigint_handler.getGracefulQuit()) {
+        if (long written = cookedPizzaChannel.escribir(pizzaStr.c_str(), (int const) pizzaStr.size() < 0)) {
+            Logger::logger().log(string("Error al escribir procesada") + to_string(written));
+            perror("Proccessed pipe");
+        }
+    }
 }
