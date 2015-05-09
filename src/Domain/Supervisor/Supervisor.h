@@ -14,16 +14,15 @@
 #include "../../Util/Locks/LockFile.h"
 #include "../../Config/Config.h"
 #include "../../Util/Seniales/SIGINT_Handler.h"
+#include "../Process/Process.h"
 
-class Supervisor {
+class Supervisor : Process {
 public:
     Supervisor();
 private:
     MemoriaCompartida<float> payDesk;
     LockFile payDeskLock = LockFile(LOCKFILE_PAYDESK);
     void startCheckingCash();
-
-    SIGINT_Handler sigint_handler;
 };
 
 #endif //CONCUTP_SUPERVISOR_H

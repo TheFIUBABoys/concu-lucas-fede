@@ -11,15 +11,14 @@
 
 
 
-Receptionist::Receptionist(int cookAmount) {
+Receptionist::Receptionist(int cookAmount) : Process() {
     Logger::logger().log("Receptionist waking up");
     initWithCookAmount(cookAmount);
     startPollingForOrders();
     Logger::logger().log("Receptionist dying");
 }
 
-void Receptionist::initWithCookAmount(int cookAmount) {
-    SignalHandler::getInstance()->registrarHandler ( SIGINT,&sigint_handler);
+void Receptionist::initWithCookAmount(int cookAmount){
     Receptionist::cookAmount = cookAmount;
     orderChannel.abrir();
     processedOrderAmount.crear(LOCKFILE_HANDLED_ORDERS, 'L');

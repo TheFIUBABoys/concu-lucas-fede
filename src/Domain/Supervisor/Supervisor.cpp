@@ -8,7 +8,7 @@
 #include "../../Util/Seniales/SignalHandler.h"
 
 //Create receptionist in new thread and start polling for orders
-Supervisor::Supervisor() {
+Supervisor::Supervisor() : Process() {
     Logger::logger().log("Supervisor waking up");
 
     payDesk.crear(LOCKFILE_PAYDESK, 'L');

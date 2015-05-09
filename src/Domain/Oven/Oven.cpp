@@ -8,9 +8,8 @@
 #include "../../Config/Config.h"
 #include "../../Util/Seniales/SignalHandler.h"
 
-Oven::Oven() {
+Oven::Oven() : Process() {
     Logger::logger().log("Preheating oven");
-    SignalHandler::getInstance()->registrarHandler ( SIGINT,&sigint_handler);
     pizzaChannel.abrir();
     cookedPizzaChannel.abrir();
     freeOvenSemaphore.v();

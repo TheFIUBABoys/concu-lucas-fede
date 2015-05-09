@@ -12,8 +12,9 @@
 #include "../../Util/Fifos/FifoLectura.h"
 #include "../Receptionist/Receptionist.h"
 #include "../../Util/Semaforo/Semaforo.h"
+#include "../Process/Process.h"
 
-class Cook {
+class Cook : Process {
 public:
     Cook();
     static string getPizzaFifoName();
@@ -24,8 +25,6 @@ private:
     MemoriaCompartida<int> processedOrderAmount;
     LockFile processedOrderAmountLock = LockFile(LOCKFILE_HANDLED_ORDERS);
     void startPollingForOrders();
-
-    SIGINT_Handler sigint_handler;
 
     void cookOrder(string& orderStr);
 

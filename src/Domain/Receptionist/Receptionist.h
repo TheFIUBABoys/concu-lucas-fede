@@ -13,9 +13,10 @@
 #include "../../Util/Locks/LockFile.h"
 #include "../../Config/Config.h"
 #include "../../Util/Seniales/SIGINT_Handler.h"
+#include "../Process/Process.h"
 
 
-class Receptionist {
+class Receptionist : Process {
 
 public:
     Receptionist(int cookAmount);
@@ -28,7 +29,6 @@ private:
     int cookAmount;
     LockFile processedOrderAmountLock = LockFile(LOCKFILE_HANDLED_ORDERS);
     void startPollingForOrders();
-    SIGINT_Handler sigint_handler;
     void processOrder(std::string &orderStr);
 
     void initWithCookAmount(int cookAmount);

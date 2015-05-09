@@ -11,9 +11,8 @@
 #define COOK_DELAY 5
 
 //Create receptionist in new thread and start polling for orders
-Cook::Cook() {
+Cook::Cook() : Process() {
     Logger::logger().log("Cook waking up");
-    SignalHandler::getInstance()->registrarHandler ( SIGINT,&sigint_handler);
     processedOrdersChannel.abrir();
     pizzaChannel.abrir();
     processedOrderAmount.crear(LOCKFILE_HANDLED_ORDERS, 'L');

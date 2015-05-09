@@ -11,9 +11,10 @@
 #include "../../Util/MemoriaCompartida/MemoriaCompartida.h"
 #include "../../Util/Locks/LockFile.h"
 #include "../../Config/Config.h"
+#include "../Process/Process.h"
 #include <string>
 
-class Cadet {
+class Cadet : Process {
 public:
     Cadet();
     static std::string getPizzaCookedFifoName();
@@ -24,7 +25,6 @@ private:
     LockFile payDeskLock = LockFile(LOCKFILE_PAYDESK);
     FifoLectura cookedPizzaChannel = FifoLectura(Cadet::getPizzaCookedFifoName());
 
-    SIGINT_Handler sigint_handler;
     Semaforo freeOvenSemaphore = Semaforo(SEMAPHORE_NAME);
     float getPizzaPrice();
 
