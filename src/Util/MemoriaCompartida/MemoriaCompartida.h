@@ -10,6 +10,7 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <string>
+#include <iostream>
 
 
 template <class T> class MemoriaCompartida {
@@ -40,19 +41,22 @@ template <class T> int MemoriaCompartida<T> :: crear ( const std::string& archiv
 
 	// generacion de la clave
 	key_t clave = ftok ( archivo.c_str(),letra );
-	if ( clave == -1 )
+	if ( clave == -1 ) {
+		perror("Error durante el ftok");
 		return ERROR_FTOK;
-	else {
+	} else {
 		// creacion de la memoria compartida
 		this->shmId = shmget ( clave,sizeof(T),0644|IPC_CREAT );
 
-		if ( this->shmId == -1 )
+		if ( this->shmId == -1 ) {
+			perror("Error durante el shmget");
 			return ERROR_SHMGET;
-		else {
+		} else {
 			// attach del bloque de memoria al espacio de direcciones del proceso
 			void* ptrTemporal = shmat ( this->shmId,NULL,0 );
 
 			if ( ptrTemporal == (void *) -1 ) {
+				perror("Error durante el shmat");
 				return ERROR_SHMAT;
 			} else {
 				this->ptrDatos = static_cast<T*> (ptrTemporal);
