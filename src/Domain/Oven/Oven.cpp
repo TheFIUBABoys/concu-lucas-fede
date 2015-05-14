@@ -21,9 +21,9 @@ void Oven::startWaitingForPizzas() {
     char buffer[MESSAGE_LENGTH];;
     while (!sigint_handler.getGracefulQuit()) {
         ssize_t bytesLeidos = pizzaChannel.leer(buffer, MESSAGE_LENGTH);
-        string pizzaStr = buffer;
-        pizzaStr.resize(MESSAGE_LENGTH);
         if (bytesLeidos == MESSAGE_LENGTH) {
+            string pizzaStr = buffer;
+            pizzaStr.resize(MESSAGE_LENGTH);
             cookPizza(pizzaStr);
         } else {
             Logger::logger().log("Horno lee EOF");

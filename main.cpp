@@ -38,6 +38,7 @@ using namespace std;
 vector<__pid_t> spawnedProcesses;
 int mainpid;
 int supervisorPID;
+bool shouldQuit;
 
 void signalCallback(int signum){
     if (signum==SIGINT && getpid() == mainpid) {
@@ -47,13 +48,12 @@ void signalCallback(int signum){
 
             kill(spawnedProcesses[i], signum);
         }
-
-        cleanup();
-        exit(0);
+        shouldQuit = true;
     }
 }
 
 int main() {
+    shouldQuit = false;
     remove(LOG_FILE);
     signal(SIGINT, signalCallback);
 
@@ -70,6 +70,7 @@ int main() {
     long cadetsQuantity = reader.GetInteger("parameters", "cadets", -1);
     long ovenQuantity = reader.GetInteger("parameters", "ovens", -1);
     long debug = reader.GetInteger("parameters", "debug", -1);
+
 
     if (debug != 0) {
         Logger::logger().debug = true;
@@ -122,15 +123,14 @@ int main() {
 
     //Esperar por los hijos
     for (int i = 0; i < receptionistQuantity + cookQuantity + cadetsQuantity + ovenQuantity; i++) {
+        if (shouldQuit) break;
         wait(NULL);
     }
 
     //Kill supervisor
     Logger::logger().log("Killing child pid: " + to_string(supervisorPID));
     kill(supervisorPID, SIGINT);
-
     cleanup();
-
     return 0;
 }
 
