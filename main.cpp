@@ -113,11 +113,12 @@ int main() {
     FifoEscritura fifo = FifoEscritura(Receptionist::getOrderFifoName());
     fifo.abrir();
     for (int i = 0; i < 20; i++) {
+        if (shouldQuit) break;
         std::string dato = "Orden ";
         dato = dato + to_string(i);
         dato.resize(MESSAGE_LENGTH);
-        sleep(1);
         fifo.escribir(dato.c_str(), (int const) dato.size());
+        sleep(1);
     }
     fifo.cerrar();
 
