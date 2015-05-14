@@ -37,6 +37,7 @@ using namespace std;
 
 vector<__pid_t> spawnedProcesses;
 int mainpid;
+int supervisorPID;
 
 void signalCallback(int signum){
     if (signum==SIGINT && getpid() == mainpid) {
@@ -120,9 +121,13 @@ int main() {
     fifo.cerrar();
 
     //Esperar por los hijos
-    for (int i = 0; i < receptionistQuantity + cookQuantity + cadetsQuantity + ovenQuantity + 1; i++) {
+    for (int i = 0; i < receptionistQuantity + cookQuantity + cadetsQuantity + ovenQuantity; i++) {
         wait(NULL);
     }
+
+    //Kill supervisor
+    Logger::logger().log("Killing child pid: " + to_string(supervisorPID));
+    kill(supervisorPID, SIGINT);
 
     cleanup();
 
@@ -217,6 +222,7 @@ ProcessType createSupervisor() {
         return ProcessTypeChild;
     } else {
         spawnedProcesses.push_back(pid);
+        supervisorPID = pid;
     }
 
     return ProcessTypeFather;
