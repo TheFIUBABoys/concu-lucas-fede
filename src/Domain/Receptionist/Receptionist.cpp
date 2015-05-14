@@ -42,6 +42,8 @@ void Receptionist::startPollingForOrders() {
             uncookedOrderAmount = processedOrderAmount.leer();
             //Ignore orders
             readBytes = orderChannel.leer(buffer, MESSAGE_LENGTH);
+            Logger::logger().log("Hay " + to_string(cookAmount) + " cocineras y " + to_string(uncookedOrderAmount) +
+                                 " pedidos sin procesar");
         }
         if (readBytes == MESSAGE_LENGTH) {
             std::string orderStr = buffer;
