@@ -115,7 +115,7 @@ int main() {
         std::string dato = "Orden ";
         dato = dato + to_string(i);
         dato.resize(MESSAGE_LENGTH);
-        sleep(1);
+        sleep(3);
         fifo.escribir(dato.c_str(), (int const) dato.size());
     }
     fifo.cerrar();

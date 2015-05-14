@@ -10,7 +10,6 @@
 #define PROCESSING_DELAY 4
 
 
-
 Receptionist::Receptionist(int cookAmount) : Process() {
     Logger::logger().log("Receptionist waking up");
     initWithCookAmount(cookAmount);
@@ -18,11 +17,11 @@ Receptionist::Receptionist(int cookAmount) : Process() {
     Logger::logger().log("Receptionist dying");
 }
 
-void Receptionist::initWithCookAmount(int cookAmount){
+void Receptionist::initWithCookAmount(int cookAmount) {
     Receptionist::cookAmount = cookAmount;
     orderChannel.abrir();
-    if (processedOrderAmount.crear(LOCKFILE_HANDLED_ORDERS, 'L')!=SHM_OK){
-        string error = "Error creando caja de memoria compartida";
+    if (processedOrderAmount.crear(LOCKFILE_HANDLED_ORDERS, 'L') != SHM_OK) {
+        string error = "Error creando memoria compartida de cant. pedidos procesados";
         perror(error.c_str());
         Logger::logger().log(error);
     }
@@ -34,16 +33,17 @@ void Receptionist::startPollingForOrders() {
     while (!sigint_handler.getGracefulQuit()) {
         int uncookedOrderAmount = processedOrderAmount.leer();
         ssize_t readBytes = orderChannel.leer(buffer, MESSAGE_LENGTH);
-
-        while (uncookedOrderAmount > 2 * cookAmount && readBytes > 0) {
-            if (readBytes > 0) {
-                Logger::logger().log(string("Recepcionista no atiende ") + buffer);
-            }
+        Logger::logger().log("Hay " + to_string(cookAmount) + " cocineras y " + to_string(uncookedOrderAmount) +
+                             " pedidos sin procesar");
+        while (uncookedOrderAmount > 2 * cookAmount && readBytes == MESSAGE_LENGTH) {
+            string order = buffer;
+            order.resize(MESSAGE_LENGTH);
+            Logger::logger().log("Recepcionista ignora " + order);
             uncookedOrderAmount = processedOrderAmount.leer();
             //Ignore orders
             readBytes = orderChannel.leer(buffer, MESSAGE_LENGTH);
         }
-        if (readBytes > 0) {
+        if (readBytes == MESSAGE_LENGTH) {
             std::string orderStr = buffer;
             orderStr.resize(MESSAGE_LENGTH);
             Logger::logger().log(string("Recepcionista recibe ") + string(orderStr));

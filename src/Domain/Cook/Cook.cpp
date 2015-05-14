@@ -29,7 +29,7 @@ void Cook::startPollingForOrders() {
     char buffer[MESSAGE_LENGTH];
     while (!sigint_handler.getGracefulQuit()) {
         ssize_t bytesLeidos = processedOrdersChannel.leer(buffer, MESSAGE_LENGTH);
-        if (bytesLeidos > 0) {
+        if (bytesLeidos == MESSAGE_LENGTH) {
             std::string orderStr = buffer;
             orderStr.resize(MESSAGE_LENGTH);
             Logger::logger().log(string("Cocinera recibe ") + orderStr);

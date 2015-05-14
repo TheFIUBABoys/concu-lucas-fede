@@ -30,7 +30,7 @@ void Cadet::startPollingForOrders() {
     char buffer[MESSAGE_LENGTH];
     while (!sigint_handler.getGracefulQuit()) {
         ssize_t bytesLeidos = cookedPizzaChannel.leer(buffer, MESSAGE_LENGTH);
-        if (bytesLeidos > 0) {
+        if (bytesLeidos == MESSAGE_LENGTH) {
             string orderStr = takePizzaFromOven(buffer);
             chargePizza(orderStr);
         } else {
